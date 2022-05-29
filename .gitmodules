@@ -1,3 +1,0 @@
-[submodule "prl/environment/PokerRL"]
-	path = prl/environment/PokerRL
-	url = https://github.com/hellovertex/PokerRL
