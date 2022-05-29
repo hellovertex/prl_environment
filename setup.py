@@ -1,13 +1,13 @@
 from setuptools import find_namespace_packages, setup
 import os.path as osp
 
-with open("prl/environment/README.md", "r") as fh:
+with open("prl/environment/PokerRL/README.md", "r") as fh:
     long_description = fh.read()
 
-with open('%s/%s' % (osp.dirname(osp.realpath(__file__)), 'prl/environment/requirements.txt')) as f:
+with open('%s/%s' % (osp.dirname(osp.realpath(__file__)), 'requirements.txt')) as f:
     requirements = [line.strip() for line in f]
 
-with open('%s/%s' % (osp.dirname(osp.realpath(__file__)), 'prl/environment/requirements_dist.txt')) as f:
+with open('%s/%s' % (osp.dirname(osp.realpath(__file__)), 'requirements_dist.txt')) as f:
     requirements_dist = [line.strip() for line in f]
 
 setup(
