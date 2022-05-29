@@ -1,0 +1,6 @@
+include prl/environment/README.md
+include prl/environment/LICENSE
+include prl/environment/PokerRL/game/_/cpp_wrappers/lib_hand_eval.dll
+include prl/environment/PokerRL/game/_/cpp_wrappers/lib_hand_eval.so
+include prl/environment/PokerRL/game/_/cpp_wrappers/lib_luts.so
+include prl/environment/PokerRL/game/_/cpp_wrappers/lib_luts.dll
