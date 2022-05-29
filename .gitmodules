@@ -1,3 +1,3 @@
-[submodule "prl/environment/SteinbergerPokerEnvironment"]
-	path = prl/environment/SteinbergerPokerEnvironment
-	url = https://github.com/hellovertex/SteinbergerPokerEnvironment
+[submodule "prl/environment/steinberger"]
+	path = prl/environment/steinberger
+	url = https://github.com/hellovertex/steinberger

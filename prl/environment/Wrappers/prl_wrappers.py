@@ -4,7 +4,7 @@ from typing import List, Optional
 import numpy as np
 from gym import spaces
 from collections import defaultdict, deque
-from PokerRL.game.Poker import Poker
+from prl.environment.steinberger.PokerRL.game.Poker import Poker
 
 
 class Vectorizer:
