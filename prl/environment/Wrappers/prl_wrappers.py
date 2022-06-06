@@ -618,7 +618,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
         # observation structure is the same for all agents
         # after resetting, since no agent acted yet, we set `self._next_player_who_gets_observation` to zero,
         # indicating that we do not want to roll the initial observation of the environment after resetting
-        # todo this should be not 0 but the first player to act
+        # done this should be not 0 but the first player to act
         # todo above todo is done but docs should be updated
         # so that observation will be rolled relative to self
         if config is not None:
