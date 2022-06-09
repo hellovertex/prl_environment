@@ -16,6 +16,11 @@ class Vectorizer:
         raise NotImplementedError
 
 
+class AgentObservationType(enum.IntEnum):
+    CARD_KNOWLEDGE = 1  # default where agent only sees his own cards and the board
+    SEER = 2  # agent sees all player cards
+
+
 class CanonicalVectorizer(Vectorizer):
     """Docstring"""
 
@@ -29,11 +34,13 @@ class CanonicalVectorizer(Vectorizer):
                  n_suits=4,
                  n_board_cards=5,
                  n_hand_cards=2,
-                 use_zero_padding=True):
+                 use_zero_padding=True,
+                 mode=AgentObservationType.CARD_KNOWLEDGE):
         # --- Utils --- #
         # todo implement SEER mode
         # if this switch is disabled, we use num_players instead of max_players
         # todo implement this switch
+        self._agent_observation_type = mode
         self._use_zero_padding = use_zero_padding
         self._next_player_who_gets_observation = None
         self.num_players = num_players
@@ -330,6 +337,9 @@ class CanonicalVectorizer(Vectorizer):
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ -127  -127], [ -127  -127]]
         # replace NAN with 0
         rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
+        if not self._agent_observation_type == AgentObservationType.SEER:
+            # mask all other players cards -> the agent should not see these
+            rolled_cards[2:] = 0
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ 0  0], [ 0  0]]
 
         # initialize hand_bits to 0
@@ -611,16 +621,10 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
     def _before_reset(self, config=None):
         """Called before observation is computed by vectorizer"""
-        # for the initial case of the environment reset, we manually put player index to 0
-        # the player index is used to roll the observation bits relative to the acting player, so that each
-        # observation structure is the same for all agents
-        # after resetting, since no agent acted yet, we set `self._next_player_who_gets_observation` to zero,
-        # indicating that we do not want to roll the initial observation of the environment after resetting
-        # done this should be not 0 but the first player to act
-        # todo above todo is done but docs should be updated
-        # so that observation will be rolled relative to self
-        if config is not None:
-            self._player_hands = config['deck_state_dict']['hand']
+        if config is not None and 'deck_state_dict' in config:
+            if 'hand' in config['deck_state_dict']:
+                # key 'hand' is set, when text files are parsed to vectorized observations
+                self._player_hands = config['deck_state_dict']['hand']
 
     def _after_reset(self):
         self._next_player_who_gets_observation = self.env.current_player.seat_id
@@ -837,6 +841,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         # Tuple (lots of spaces.Discrete and spaces.Box)
         _observation_space = spaces.Tuple(_table_space + _player_space + _board_space)
         _observation_space.shape = [len(_observation_space.spaces)]
+
         return _observation_space, obs_idx_dict, obs_parts_idxs_dict
 
     def print_augmented_obs(self, obs):
