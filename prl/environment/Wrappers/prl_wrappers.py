@@ -99,6 +99,9 @@ class CanonicalVectorizer(Vectorizer):
                         + self._bits_action_history
         self._obs = np.zeros(self._obs_len)
 
+    def vectorized_observation_shape(self):
+        return self._obs.shape
+
     def encode_table(self, obs):
         """Example:
                     ante:   0.0
@@ -392,7 +395,7 @@ class CanonicalVectorizer(Vectorizer):
         self.encode_action_history(normalization)
 
         assert self.offset == self._obs_len
-        return self._obs
+        return np.concatenate([self._obs, [self._btn_idx]])  # append btn index at the end as a hotfix
 
 
 class Positions6Max(enum.IntEnum):
