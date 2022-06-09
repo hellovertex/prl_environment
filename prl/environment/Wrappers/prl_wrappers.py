@@ -706,6 +706,9 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         # self.print_augmented_obs(obs)
         return obs
 
+    def get_legal_actions(self):
+        return self.env.get_legal_actions()
+
     def get_info(self):
         return self.env.get_info()
 
