@@ -591,7 +591,8 @@ class ActionHistory:
 
 
 class ActionHistoryWrapper(WrapperPokerRL):
-
+    """Intermediate wrapper that pushes back each action into a history buffer,
+    before passing it to the AugmentObservationWrapper"""
     def __init__(self, env):
         """
         Args:
@@ -665,7 +666,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
 # noinspection DuplicatedCode
 class AugmentObservationWrapper(ActionHistoryWrapper):
-
+    """Runs our custom vectorizer after computing the observation from the steinberger env"""
     def __init__(self, env):
         super().__init__(env=env)
         # todo: (?) check how obs is normalized to avoid small floats
