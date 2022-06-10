@@ -33,8 +33,8 @@ The dimensions are as returned from the
                          min_raise:   1.00000000000000000
                            pot_amt:   0.17000000178813934
                      total_to_call:   0.9300000071525574
-                      p0_acts_next:   0.0
-                      p1_acts_next:   1.0
+                      p0_acts_next:   1.0
+                      p1_acts_next:   0.0
                       p2_acts_next:   0.0
                       p3_acts_next:   0.0
                       p4_acts_next:   0.0
