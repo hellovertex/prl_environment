@@ -1,13 +1,16 @@
 # prl_environment
-
-## Vectorized observation
+## Custom Poker Environment wrapped around [Eric Steinbergers PokerRL](https://github.com/hellovertex/steinberger) game environment. 
+The repository is used in my thesis related projects
+ - `prl_baselines` (baseline agents for rl-training)
+ - `prl_reinforce` (actual reinforcement-learning repo)
+ - `prl_api` (REST-ful API that connects `prl_frontend` gui with `prl_environment` and our rl-agents)
+## Installation
+- run `pip install .` inside repo
+## Environment
+###  Vectorized observation
 - A vectorized observation is encoded with a fixed length assuming 6 Players.
 - Missing players will be filled with 0 bits.
 - Observation is always encoded relative to observer, so that each bit has a fixed meaning
-  * Note that the last acting player is always the furthest away, so it will thus be at position 5.
-  * This is counter-intuitive for less than six players, but appropriate because the person left to the big blind is 
-    * UTG position on a 6 player table and becomes MP for 5 players, CU for 4 players, and so on
-
 - The offset to the acting player is one-hot encoded by the `player_acts_next` bit. 
 - The button position is encoded by the `button_index` bit. 
 - The dimensions are mostly one-hot encoded except for bet sizes and min_raise, which are normalized floats
@@ -16,10 +19,9 @@
 The dimensions are as returned from the 
 [Steinberger PokerRL environment](https://github.com/hellovertex/steinberger)
 
-`+` Our augmentation is appended to the end, that includes
-
+`+` Our augmentation is appended at the end:
 - Player Hands with possible SEER mode that shows all hands
-- Action history including actions for current hand, capped at 2 actions per stage (Preflop, Flop, Turn, River)
+- Action history including actions for current hand, capped at 2 actions per each stage (Preflop, Flop, Turn, River)
 
 
 
