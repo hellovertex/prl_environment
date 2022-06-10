@@ -4,7 +4,7 @@ import numpy as np
 from prl.environment.Wrappers.prl_wrappers import ActionHistory, AgentObservationType
 from prl.environment.tests.utils import make_wrapped_env
 
-DEFAULT_STARTING_STACK_SIZE = 2000
+DEFAULT_STARTING_STACK_SIZE = 20000
 
 
 # def vectorize_deque(deq, normalization):
@@ -57,8 +57,10 @@ def test_two_player_action_history_preflop():
     obs_keys = [k for k in env.obs_idx_dict.keys()]
     start = obs_keys.index('preflop_player_0_action_0_how_much')
     end = obs_keys.index('river_player_5_action_1_what_2') + 1
-    aoh_keys = obs_keys[obs_keys.index('preflop_player_0_action_0_how_much'):obs_keys.index(
-        'river_player_5_action_0_what_2') + 1]
+    # aoh_keys = obs_keys[obs_keys.index('preflop_player_0_action_0_how_much'):obs_keys.index(
+    #     'river_player_5_action_0_what_2') + 1]
+    # import pprint
+    # pprint.pprint(dict(list(zip(aoh_keys, obs[start:end]))))
     # p0 raises
     obs, _, _, _ = env.step((2, 200))
     bits = obs[start:end]
@@ -134,11 +136,12 @@ def test_player_cards_seer(env):
 
 
 def test_three_player_action_history():
-    env = make_wrapped_env(n_players=2,
-                           starting_stack_sizes=[DEFAULT_STARTING_STACK_SIZE for _ in range(2)])
+    env = make_wrapped_env(n_players=3,
+                           starting_stack_sizes=[DEFAULT_STARTING_STACK_SIZE for _ in range(3)])
     obs, _, _, _ = env.reset()
     # get relevant bits from vectorized information
     obs_keys = [k for k in env.obs_idx_dict.keys()]
+
     # -- PREFLOP --
     # p0 raises 200
     obs, _, _, _ = env.step((2, 200))
@@ -156,22 +159,126 @@ def test_three_player_action_history():
     # -- FLOP --
     # p1 raises 400
     obs, _, _, _ = env.step((2, 400))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_1')] == 1  # relative to p2
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_2_action_0_what_2')] == 1
 
     # p2 calls
     obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_2')] == 1  # relative to p0
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('flop_player_2_action_0_what_1')] == 1
+
     # p0 calls
     obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_1')] == 1  # relative to p1
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_2')] == 1
+    assert obs[obs_keys.index('flop_player_0_action_0_what_2')] == 1
+    assert obs[obs_keys.index('flop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_2_action_0_what_1')] == 1
+
     # -- TURN --
     # p1 checks
     obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_1')] == 1  # relative to p2
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_0_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_2_action_0_what_2')] == 1
+    assert obs[obs_keys.index('turn_player_2_action_0_what_1')] == 1
     # p2 raises 800
     obs, _, _, _ = env.step((2, 800))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_2')] == 1  # relative to p0
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_0_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('flop_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('turn_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('turn_player_2_action_0_what_2')] == 1
     # p0 folds
     obs, _, _, _ = env.step((0, -1))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_1')] == 1  # relative to p1
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_2')] == 1
+    assert obs[obs_keys.index('flop_player_0_action_0_what_2')] == 1
+    assert obs[obs_keys.index('flop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('flop_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('turn_player_0_action_0_what_1')] == 1
+    assert obs[obs_keys.index('turn_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('turn_player_2_action_0_what_0')] == 1
     # p1 calls
-    obs, _, _, _ = env.step((0, -1))
+    obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('turn_player_0_action_0_what_1')] == 1  # relative to p1
+    assert obs[obs_keys.index('turn_player_0_action_1_what_1')] == 1
     # -- RIVER --
-
+    # p1 checks
+    obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('river_player_0_action_0_what_0')] == 0  # relative to p2
+    assert obs[obs_keys.index('river_player_0_action_0_what_1')] == 0
+    assert obs[obs_keys.index('river_player_0_action_0_what_2')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_2')] == 0
+    assert obs[obs_keys.index('river_player_2_action_0_what_0')] == 0
+    assert obs[obs_keys.index('river_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('river_player_2_action_0_what_2')] == 0
+    assert obs[obs_keys.index('river_player_2_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_2_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_2_action_1_what_2')] == 0
+    # p2 raises
+    obs, _, _, _ = env.step((2, 2000))
+    assert obs[obs_keys.index('river_player_0_action_0_what_0')] == 0  # relative to p1
+    assert obs[obs_keys.index('river_player_0_action_0_what_1')] == 1
+    assert obs[obs_keys.index('river_player_0_action_0_what_2')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_2')] == 0
+    assert obs[obs_keys.index('river_player_1_action_0_what_0')] == 0
+    assert obs[obs_keys.index('river_player_1_action_0_what_1')] == 0
+    assert obs[obs_keys.index('river_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('river_player_1_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_1_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_1_action_1_what_2')] == 0
+    # p1 re-raises
+    obs, _, _, _ = env.step((2, 6000))
+    assert obs[obs_keys.index('river_player_0_action_0_what_0')] == 0  # relative to p2
+    assert obs[obs_keys.index('river_player_0_action_0_what_1')] == 0
+    assert obs[obs_keys.index('river_player_0_action_0_what_2')] == 1
+    assert obs[obs_keys.index('river_player_0_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_2')] == 0
+    assert obs[obs_keys.index('river_player_2_action_0_what_0')] == 0
+    assert obs[obs_keys.index('river_player_2_action_0_what_1')] == 1
+    assert obs[obs_keys.index('river_player_2_action_0_what_2')] == 0
+    assert obs[obs_keys.index('river_player_2_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_2_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_2_action_1_what_2')] == 1
+    # p2 re-re-raises
+    obs, _, _, _ = env.step((2, 12000))
+    assert obs[obs_keys.index('river_player_0_action_0_what_0')] == 0  # relative to p1
+    assert obs[obs_keys.index('river_player_0_action_0_what_1')] == 1
+    assert obs[obs_keys.index('river_player_0_action_0_what_2')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_0_action_1_what_2')] == 1
+    assert obs[obs_keys.index('river_player_1_action_0_what_0')] == 0
+    assert obs[obs_keys.index('river_player_1_action_0_what_1')] == 0
+    assert obs[obs_keys.index('river_player_1_action_0_what_2')] == 1
+    assert obs[obs_keys.index('river_player_1_action_1_what_0')] == 0
+    assert obs[obs_keys.index('river_player_1_action_1_what_1')] == 0
+    assert obs[obs_keys.index('river_player_1_action_1_what_2')] == 1
+    # p1 all in
+    obs, _, _, _ = env.step((2, 20000))
+    assert obs[obs_keys.index('river_player_0_action_0_what_2')] == 1  # relative to p2
+    assert obs[obs_keys.index('river_player_0_action_1_what_2')] == 1
+    assert obs[obs_keys.index('river_player_2_action_0_what_2')] == 1
+    assert obs[obs_keys.index('river_player_2_action_1_what_2')] == 1
 
 
 def test_six_player_action_history():
@@ -192,3 +299,4 @@ if __name__ == '__main__':
 
     test_two_player_action_history_preflop()
     test_two_player_action_history_flop()
+    test_three_player_action_history()
