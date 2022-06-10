@@ -54,34 +54,55 @@ def test_two_player_action_history_preflop():
                            starting_stack_sizes=[DEFAULT_STARTING_STACK_SIZE for _ in range(2)])
     obs, _, _, _ = env.reset()
     # get relevant bits from vectorized information
-    obs_idx_dict = env.obs_idx_dict
-    obs_keys = [k for k in obs_idx_dict.keys()]
+    obs_keys = [k for k in env.obs_idx_dict.keys()]
     start = obs_keys.index('preflop_player_0_action_0_how_much')
     end = obs_keys.index('river_player_5_action_1_what_2') + 1
-
+    aoh_keys = obs_keys[obs_keys.index('preflop_player_0_action_0_how_much'):obs_keys.index(
+        'river_player_5_action_0_what_2') + 1]
     # p0 raises
     obs, _, _, _ = env.step((2, 200))
     bits = obs[start:end]
 
     # Assert p0 action is rolled with observer offset (n_players-1)
-    assert obs['preflop_player_1_action_0_what_2'] == 1
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_2')] == 1
     assert sum([bit for bit in bits if bit == 1]) == 1
 
-    # p1 folds
-    obs, _, _, _ = env.step((0, 100))
+    # p1 calls
+    obs, _, _, _ = env.step((1, -1))
     bits = obs[start:end]
 
-    #
-    assert obs['preflop_player_1_action_0_what_0'] == 1
+    # Assert p1 action is rolled with observer offset (n_players-1)
+    # p1 action must be at index 0 because he starts immediately after the flop
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_1')] == 1
     assert sum([bit for bit in bits if bit == 1]) == 2
 
-    # Assert players preflop actions are encoded in preflop bits
+    # Assert players postflop bits  are still zero
     bits_flop_and_later = obs[obs_keys.index('flop_player_0_action_0_how_much'):end]
     assert sum([bit for bit in bits_flop_and_later if bit == 1]) == 0
 
+    # p1 raises first in flop after calling
+    obs, _, _, _ = env.step((2, 400))
+    assert obs[obs_keys.index('flop_player_1_action_0_what_2')] == 1
+
 
 def test_two_player_action_history_flop():
-    pass
+    env = make_wrapped_env(n_players=2,
+                           starting_stack_sizes=[DEFAULT_STARTING_STACK_SIZE for _ in range(2)])
+    obs, _, _, _ = env.reset()
+    # get relevant bits from vectorized information
+    obs_keys = [k for k in env.obs_idx_dict.keys()]
+    # p0 check/calls
+    obs, _, _, _ = env.step((1, -1))
+    # p1 check/calls
+    obs, _, _, _ = env.step((1, -1))
+    # p0 check/calls in FLOP
+    obs, _, _, _ = env.step((1, -1))
+    start = obs_keys.index('preflop_player_0_action_0_how_much')
+    end = obs_keys.index('river_player_5_action_1_what_2') + 1
+    bits = obs[start:end]
+
+    assert sum([bit for bit in bits if bit == 1]) == 3
+    assert obs[obs_keys.index('flop_player_1_action_0_what_1')] == 1
 
 
 def test_player_cards(env):
@@ -93,9 +114,11 @@ def test_player_cards(env):
     bits = obs[start:end]
     assert sum([bit for bit in bits if bit == 1]) == 4  # (suit, rank) one-hot for two cards
     # Assert hidden other player cards
-    start = obs_keys.index('2th_player_card_0_rank_0')
+    start = obs_keys.index('1th_player_card_0_rank_0')
     end = obs_keys.index('5th_player_card_1_suit_3') + 1
     bits = obs[start:end]
+    obs_mode = env.agent_observation_mode()
+    vec = env._vectorizer
     assert sum([bit for bit in bits if bit == 1]) == 0  # other players cards are hidden
 
 
@@ -111,15 +134,44 @@ def test_player_cards_seer(env):
 
 
 def test_three_player_action_history():
-    # 'preflop_player_5_action_0_how_much'
-    # 'preflop_player_5_action_0_what_0'
-    # 'preflop_player_5_action_0_what_1'
-    # 'preflop_player_5_action_0_what_2'
-    # todo:
-    # scenario 2: call/check until river
-    # scenario 3: raise call until river
-    # scenario 4: pre flop all ins -> rundown till showdown
-    pass
+    env = make_wrapped_env(n_players=2,
+                           starting_stack_sizes=[DEFAULT_STARTING_STACK_SIZE for _ in range(2)])
+    obs, _, _, _ = env.reset()
+    # get relevant bits from vectorized information
+    obs_keys = [k for k in env.obs_idx_dict.keys()]
+    # -- PREFLOP --
+    # p0 raises 200
+    obs, _, _, _ = env.step((2, 200))
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_2')] == 1  # relative to p1
+    # p1 calls
+    obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_2')] == 1  # relative to p2
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_1')] == 1
+    # p2 calls
+    obs, _, _, _ = env.step((1, -1))
+    assert obs[obs_keys.index('preflop_player_0_action_0_what_1')] == 1  # relative to p1
+    assert obs[obs_keys.index('preflop_player_1_action_0_what_1')] == 1
+    assert obs[obs_keys.index('preflop_player_2_action_0_what_2')] == 1
+
+    # -- FLOP --
+    # p1 raises 400
+    obs, _, _, _ = env.step((2, 400))
+
+    # p2 calls
+    obs, _, _, _ = env.step((1, -1))
+    # p0 calls
+    obs, _, _, _ = env.step((1, -1))
+    # -- TURN --
+    # p1 checks
+    obs, _, _, _ = env.step((1, -1))
+    # p2 raises 800
+    obs, _, _, _ = env.step((2, 800))
+    # p0 folds
+    obs, _, _, _ = env.step((0, -1))
+    # p1 calls
+    obs, _, _, _ = env.step((0, -1))
+    # -- RIVER --
+
 
 
 def test_six_player_action_history():
@@ -131,7 +183,6 @@ def test_six_player_action_history():
 
 
 if __name__ == '__main__':
-
     for n_players in range(2, 7):
         starting_stack_sizes = [DEFAULT_STARTING_STACK_SIZE for _ in range(n_players)]
         wrapped_env = make_wrapped_env(n_players, starting_stack_sizes)

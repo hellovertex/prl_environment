@@ -12,8 +12,4 @@ def make_wrapped_env(n_players, starting_stack_sizes):
                         lut_holder=NoLimitHoldem.get_lut_holder())
     env = AugmentObservationWrapper(env)
     env.overwrite_args(args)
-    # obs, _, _, _ = env.reset()
-    #
-    # obs_dict = env.obs_idx_dict
-    # obs_keys = [k for k in obs_dict.keys()]
     return env
