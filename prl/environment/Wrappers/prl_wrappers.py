@@ -709,8 +709,10 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
 
-    def overwrite_args(self, args):
+    def overwrite_args(self, args, agent_observation_mode=None):
         self.env.set_args(args)
+        if not agent_observation_mode:
+            agent_observation_mode = self.env.agent_observation_mode()
         self._normalization_sum = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
@@ -720,6 +722,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
+        self._vectorizer.agent_observation_mode = agent_observation_mode
 
     def agent_observation_mode(self):
         return self._vectorizer.agent_observation_mode
