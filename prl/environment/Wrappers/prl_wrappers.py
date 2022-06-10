@@ -149,7 +149,7 @@ class CanonicalVectorizer(Vectorizer):
         end_orig = start_orig + self.num_players
         # extract from original observation
         bits = obs[start_orig:end_orig]
-        bits = np.roll(bits, self._next_player_who_gets_observation)
+        bits = np.roll(bits, -self._next_player_who_gets_observation)
         # zero padding
         bits = np.pad(bits, (0, self._max_players - self.num_players), 'constant')
         # copy from original observation with zero padding
