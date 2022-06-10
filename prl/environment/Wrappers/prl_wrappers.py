@@ -37,9 +37,7 @@ class CanonicalVectorizer(Vectorizer):
                  use_zero_padding=True,
                  mode=AgentObservationType.CARD_KNOWLEDGE):
         # --- Utils --- #
-        # todo implement SEER mode
-        # if this switch is disabled, we use num_players instead of max_players
-        # todo implement this switch
+        # todo [optional] switch to use num_players instead of max_players
         self._agent_observation_type = mode
         self._use_zero_padding = use_zero_padding
         self._next_player_who_gets_observation = None
@@ -105,6 +103,14 @@ class CanonicalVectorizer(Vectorizer):
                         + self._bits_player_hands \
                         + self._bits_action_history
         self._obs = np.zeros(self._obs_len)
+
+    @property
+    def agent_observation_mode(self):
+        return self._agent_observation_type
+
+    @agent_observation_mode.setter
+    def agent_observation_mode(self, mode: AgentObservationType):
+        self._agent_observation_type = mode
 
     def vectorized_observation_shape(self):
         return self._obs.shape
@@ -593,6 +599,7 @@ class ActionHistory:
 class ActionHistoryWrapper(WrapperPokerRL):
     """Intermediate wrapper that pushes back each action into a history buffer,
     before passing it to the AugmentObservationWrapper"""
+
     def __init__(self, env):
         """
         Args:
@@ -667,6 +674,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
 # noinspection DuplicatedCode
 class AugmentObservationWrapper(ActionHistoryWrapper):
     """Runs our custom vectorizer after computing the observation from the steinberger env"""
+
     def __init__(self, env):
         super().__init__(env=env)
         # todo: (?) check how obs is normalized to avoid small floats
@@ -693,6 +701,9 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
+
+    def set_agent_observation_mode(self, mode: AgentObservationType):
+        self._vectorizer.agent_observation_mode = mode
 
     def get_current_obs(self, env_obs):
         """
