@@ -332,9 +332,6 @@ class CanonicalVectorizer(Vectorizer):
         end_orig = start_orig + self._bits_board
         # extract from original observation
         bits = obs[start_orig:end_orig]
-        # roll relative to observer
-        roll_by = -self._next_player_who_gets_observation
-        bits = np.roll(bits, roll_by)
         # zero padding is not necessary
         # copy from original observation without zero padding
         self._obs[self._start_board:self.offset] = bits
