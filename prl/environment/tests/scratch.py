@@ -76,6 +76,22 @@ def test_two_player_action_history():
     # scenario 4: pre flop all ins -> rundown till showdown
 
 
+def test_player_cards():
+    n_players = 2
+    starting_stack_sizes = [DEFAULT_STARTING_STACK_SIZE for _ in range(n_players)]
+    env = make_wrapped_env(n_players, starting_stack_sizes)
+    obs, _, _, _ = env.reset()
+    obs_keys = [k for k in env.obs_idx_dict.keys()]
+    start = obs_keys.index('0th_player_card_0_rank_0')
+    end = obs_keys.index('1th_player_card_0_rank_0')
+    bits = obs[start:end]
+    assert sum([bit for bit in bits if bit == 1]) == 4  # (suit, rank) one-hot for two cards
+    start = obs_keys.index('2th_player_card_0_rank_0')
+    end = obs_keys.index('5th_player_card_1_suit_3') + 1
+    bits = obs[start:end]
+    assert sum([bit for bit in bits if bit == 1]) == 0  # other players cards are hidden
+
+
 def test_three_player_action_history():
     # todo:
     # scenario 2: call/check until river
@@ -94,4 +110,5 @@ def test_six_player_action_history():
 
 if __name__ == '__main__':
     # test_two_player_action_history()
+    test_player_cards()
     test_two_player_action_history()
