@@ -190,11 +190,11 @@ class CanonicalVectorizer(Vectorizer):
         except Exception as e:
             bits = np.zeros(self.num_players)
 
-        # zero padding
-        bits = np.pad(bits, (0, self._max_players - self.num_players), 'constant')
-
         # move self to index 0
         bits = np.roll(bits, -self._next_player_who_gets_observation)
+
+        # zero padding
+        bits = np.pad(bits, (0, self._max_players - self.num_players), 'constant')
 
         # copy from original observation with zero padding
         self._obs[self._start_side_pots:self.offset] = bits
