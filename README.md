@@ -26,29 +26,29 @@ The dimensions are as returned from the
 
 #### Example observation
                               ante:   0.0
-                       small_blind:   0.02500000037252903
-                         big_blind:   0.05000000074505806
-                         min_raise:   0.15000000596046448
-                           pot_amt:   0.0
-                     total_to_call:   0.10000000149011612
+                       small_blind:   0.0024999999441206455
+                         big_blind:   0.004999999888241291
+                         min_raise:   1.00000000000000000
+                           pot_amt:   0.17000000178813934
+                     total_to_call:   0.9300000071525574
                       p0_acts_next:   0.0
                       p1_acts_next:   1.0
                       p2_acts_next:   0.0
                       p3_acts_next:   0.0
                       p4_acts_next:   0.0
                       p5_acts_next:   0.0
-                     round_preflop:   1.0
+                     round_preflop:   0.0
                         round_flop:   0.0
                         round_turn:   0.0
-                       round_river:   0.0
+                       round_river:   1.0
                         side_pot_0:   0.0
                         side_pot_1:   0.0
                         side_pot_2:   0.0
                         side_pot_3:   0.0
                         side_pot_4:   0.0
                         side_pot_5:   0.0
-                          stack_p0:   0.949999988079071
-                       curr_bet_p0:   0.05000000074505806
+                          stack_p0:   0.33000001311302185
+                       curr_bet_p0:   0.6000000238418579
         has_folded_this_episode_p0:   0.0
                        is_allin_p0:   0.0
              side_pot_rank_p0_is_0:   0.0
@@ -57,9 +57,9 @@ The dimensions are as returned from the
              side_pot_rank_p0_is_3:   0.0
              side_pot_rank_p0_is_4:   0.0
              side_pot_rank_p0_is_5:   0.0
-                          stack_p1:   0.0
+                          stack_p1:   0.9700000286102295
                        curr_bet_p1:   0.0
-        has_folded_this_episode_p1:   0.0
+        has_folded_this_episode_p1:   1.0
                        is_allin_p1:   0.0
              side_pot_rank_p1_is_0:   0.0
              side_pot_rank_p1_is_1:   0.0
@@ -68,9 +68,9 @@ The dimensions are as returned from the
              side_pot_rank_p1_is_4:   0.0
              side_pot_rank_p1_is_5:   0.0
                           stack_p2:   0.0
-                       curr_bet_p2:   0.0
+                       curr_bet_p2:   0.9300000071525574
         has_folded_this_episode_p2:   0.0
-                       is_allin_p2:   0.0
+                       is_allin_p2:   1.0
              side_pot_rank_p2_is_0:   0.0
              side_pot_rank_p2_is_1:   0.0
              side_pot_rank_p2_is_2:   0.0
@@ -97,8 +97,8 @@ The dimensions are as returned from the
              side_pot_rank_p4_is_3:   0.0
              side_pot_rank_p4_is_4:   0.0
              side_pot_rank_p4_is_5:   0.0
-                          stack_p5:   0.8999999761581421
-                       curr_bet_p5:   0.10000000149011612
+                          stack_p5:   0.0
+                       curr_bet_p5:   0.0
         has_folded_this_episode_p5:   0.0
                        is_allin_p5:   0.0
              side_pot_rank_p5_is_0:   0.0
@@ -116,12 +116,12 @@ The dimensions are as returned from the
              0th_board_card_rank_6:   0.0
              0th_board_card_rank_7:   0.0
              0th_board_card_rank_8:   0.0
-             0th_board_card_rank_9:   0.0
+             0th_board_card_rank_9:   1.0
             0th_board_card_rank_10:   0.0
             0th_board_card_rank_11:   0.0
             0th_board_card_rank_12:   0.0
              0th_board_card_suit_0:   0.0
-             0th_board_card_suit_1:   0.0
+             0th_board_card_suit_1:   1.0
              0th_board_card_suit_2:   0.0
              0th_board_card_suit_3:   0.0
              1th_board_card_rank_0:   0.0
@@ -129,14 +129,14 @@ The dimensions are as returned from the
              1th_board_card_rank_2:   0.0
              1th_board_card_rank_3:   0.0
              1th_board_card_rank_4:   0.0
-             1th_board_card_rank_5:   0.0
+             1th_board_card_rank_5:   1.0
              1th_board_card_rank_6:   0.0
              1th_board_card_rank_7:   0.0
              1th_board_card_rank_8:   0.0
              1th_board_card_rank_9:   0.0
             1th_board_card_rank_10:   0.0
             1th_board_card_rank_11:   0.0
-            1th_board_card_rank_12:   0.0
+            1th_board_card_rank_12:   1.0
              1th_board_card_suit_0:   0.0
              1th_board_card_suit_1:   0.0
              1th_board_card_suit_2:   0.0
@@ -147,7 +147,7 @@ The dimensions are as returned from the
              2th_board_card_rank_3:   0.0
              2th_board_card_rank_4:   0.0
              2th_board_card_rank_5:   0.0
-             2th_board_card_rank_6:   0.0
+             2th_board_card_rank_6:   1.0
              2th_board_card_rank_7:   0.0
              2th_board_card_rank_8:   0.0
              2th_board_card_rank_9:   0.0
@@ -155,7 +155,7 @@ The dimensions are as returned from the
             2th_board_card_rank_11:   0.0
             2th_board_card_rank_12:   0.0
              2th_board_card_suit_0:   0.0
-             2th_board_card_suit_1:   0.0
+             2th_board_card_suit_1:   1.0
              2th_board_card_suit_2:   0.0
              2th_board_card_suit_3:   0.0
              3th_board_card_rank_0:   0.0
@@ -164,12 +164,12 @@ The dimensions are as returned from the
              3th_board_card_rank_3:   0.0
              3th_board_card_rank_4:   0.0
              3th_board_card_rank_5:   0.0
-             3th_board_card_rank_6:   0.0
+             3th_board_card_rank_6:   1.0
              3th_board_card_rank_7:   0.0
              3th_board_card_rank_8:   0.0
              3th_board_card_rank_9:   0.0
             3th_board_card_rank_10:   0.0
-            3th_board_card_rank_11:   0.0
+            3th_board_card_rank_11:   1.0
             3th_board_card_rank_12:   0.0
              3th_board_card_suit_0:   0.0
              3th_board_card_suit_1:   0.0
@@ -179,7 +179,7 @@ The dimensions are as returned from the
              4th_board_card_rank_1:   0.0
              4th_board_card_rank_2:   0.0
              4th_board_card_rank_3:   0.0
-             4th_board_card_rank_4:   0.0
+             4th_board_card_rank_4:   1.0
              4th_board_card_rank_5:   0.0
              4th_board_card_rank_6:   0.0
              4th_board_card_rank_7:   0.0
@@ -187,14 +187,14 @@ The dimensions are as returned from the
              4th_board_card_rank_9:   0.0
             4th_board_card_rank_10:   0.0
             4th_board_card_rank_11:   0.0
-            4th_board_card_rank_12:   0.0
+            4th_board_card_rank_12:   1.0
              4th_board_card_suit_0:   0.0
              4th_board_card_suit_1:   0.0
              4th_board_card_suit_2:   0.0
              4th_board_card_suit_3:   0.0
           0th_player_card_0_rank_0:   0.0
           0th_player_card_0_rank_1:   0.0
-          0th_player_card_0_rank_2:   1.0
+          0th_player_card_0_rank_2:   0.0
           0th_player_card_0_rank_3:   0.0
           0th_player_card_0_rank_4:   0.0
           0th_player_card_0_rank_5:   0.0
@@ -202,30 +202,30 @@ The dimensions are as returned from the
           0th_player_card_0_rank_7:   0.0
           0th_player_card_0_rank_8:   0.0
           0th_player_card_0_rank_9:   0.0
-         0th_player_card_0_rank_10:   0.0
+         0th_player_card_0_rank_10:   1.0
          0th_player_card_0_rank_11:   0.0
          0th_player_card_0_rank_12:   0.0
-          0th_player_card_0_suit_0:   0.0
+          0th_player_card_0_suit_0:   1.0
           0th_player_card_0_suit_1:   0.0
-          0th_player_card_0_suit_2:   1.0
+          0th_player_card_0_suit_2:   0.0
           0th_player_card_0_suit_3:   0.0
           0th_player_card_1_rank_0:   0.0
           0th_player_card_1_rank_1:   0.0
           0th_player_card_1_rank_2:   0.0
-          0th_player_card_1_rank_3:   0.0
+          0th_player_card_1_rank_3:   1.0
           0th_player_card_1_rank_4:   0.0
           0th_player_card_1_rank_5:   0.0
           0th_player_card_1_rank_6:   0.0
           0th_player_card_1_rank_7:   0.0
-          0th_player_card_1_rank_8:   1.0
+          0th_player_card_1_rank_8:   0.0
           0th_player_card_1_rank_9:   0.0
          0th_player_card_1_rank_10:   0.0
          0th_player_card_1_rank_11:   0.0
          0th_player_card_1_rank_12:   0.0
           0th_player_card_1_suit_0:   0.0
-          0th_player_card_1_suit_1:   1.0
+          0th_player_card_1_suit_1:   0.0
           0th_player_card_1_suit_2:   0.0
-          0th_player_card_1_suit_3:   0.0
+          0th_player_card_1_suit_3:   1.0
           1th_player_card_0_rank_0:   0.0
           1th_player_card_0_rank_1:   0.0
           1th_player_card_0_rank_2:   0.0
@@ -398,23 +398,23 @@ The dimensions are as returned from the
           5th_player_card_1_suit_3:   0.0
     preflop_player_0_action_0_how_much:   0.0
       preflop_player_0_action_0_what_0:   0.0
-      preflop_player_0_action_0_what_1:   0.0
+      preflop_player_0_action_0_what_1:   1.0
       preflop_player_0_action_0_what_2:   0.0
     preflop_player_0_action_1_how_much:   0.0
       preflop_player_0_action_1_what_0:   0.0
       preflop_player_0_action_1_what_1:   0.0
       preflop_player_0_action_1_what_2:   0.0
-    preflop_player_1_action_0_how_much:   0.0
+    preflop_player_1_action_0_how_much:   0.01
       preflop_player_1_action_0_what_0:   0.0
       preflop_player_1_action_0_what_1:   0.0
-      preflop_player_1_action_0_what_2:   0.0
+      preflop_player_1_action_0_what_2:   1.0
     preflop_player_1_action_1_how_much:   0.0
       preflop_player_1_action_1_what_0:   0.0
       preflop_player_1_action_1_what_1:   0.0
       preflop_player_1_action_1_what_2:   0.0
     preflop_player_2_action_0_how_much:   0.0
       preflop_player_2_action_0_what_0:   0.0
-      preflop_player_2_action_0_what_1:   0.0
+      preflop_player_2_action_0_what_1:   1.0
       preflop_player_2_action_0_what_2:   0.0
     preflop_player_2_action_1_how_much:   0.0
       preflop_player_2_action_1_what_0:   0.0
@@ -438,15 +438,15 @@ The dimensions are as returned from the
       preflop_player_4_action_1_what_2:   0.0
     preflop_player_5_action_0_how_much:   0.0
       preflop_player_5_action_0_what_0:   0.0
-      preflop_player_5_action_0_what_1:   1.0
-      preflop_player_5_action_0_what_2:   200.0
+      preflop_player_5_action_0_what_1:   0.0
+      preflop_player_5_action_0_what_2:   0.0
     preflop_player_5_action_1_how_much:   0.0
       preflop_player_5_action_1_what_0:   0.0
       preflop_player_5_action_1_what_1:   0.0
       preflop_player_5_action_1_what_2:   0.0
        flop_player_0_action_0_how_much:   0.0
          flop_player_0_action_0_what_0:   0.0
-         flop_player_0_action_0_what_1:   0.0
+         flop_player_0_action_0_what_1:   1.0
          flop_player_0_action_0_what_2:   0.0
        flop_player_0_action_1_how_much:   0.0
          flop_player_0_action_1_what_0:   0.0
@@ -454,16 +454,16 @@ The dimensions are as returned from the
          flop_player_0_action_1_what_2:   0.0
        flop_player_1_action_0_how_much:   0.0
          flop_player_1_action_0_what_0:   0.0
-         flop_player_1_action_0_what_1:   0.0
+         flop_player_1_action_0_what_1:   1.0
          flop_player_1_action_0_what_2:   0.0
        flop_player_1_action_1_how_much:   0.0
          flop_player_1_action_1_what_0:   0.0
          flop_player_1_action_1_what_1:   0.0
          flop_player_1_action_1_what_2:   0.0
-       flop_player_2_action_0_how_much:   0.0
+       flop_player_2_action_0_how_much:   0.02
          flop_player_2_action_0_what_0:   0.0
          flop_player_2_action_0_what_1:   0.0
-         flop_player_2_action_0_what_2:   0.0
+         flop_player_2_action_0_what_2:   1.0
        flop_player_2_action_1_how_much:   0.0
          flop_player_2_action_1_what_0:   0.0
          flop_player_2_action_1_what_1:   0.0
@@ -492,16 +492,16 @@ The dimensions are as returned from the
          flop_player_5_action_1_what_0:   0.0
          flop_player_5_action_1_what_1:   0.0
          flop_player_5_action_1_what_2:   0.0
-       turn_player_0_action_0_how_much:   0.0
+       turn_player_0_action_0_how_much:   0.04
          turn_player_0_action_0_what_0:   0.0
          turn_player_0_action_0_what_1:   0.0
-         turn_player_0_action_0_what_2:   0.0
+         turn_player_0_action_0_what_2:   1.0
        turn_player_0_action_1_how_much:   0.0
          turn_player_0_action_1_what_0:   0.0
          turn_player_0_action_1_what_1:   0.0
          turn_player_0_action_1_what_2:   0.0
        turn_player_1_action_0_how_much:   0.0
-         turn_player_1_action_0_what_0:   0.0
+         turn_player_1_action_0_what_0:   1.0
          turn_player_1_action_0_what_1:   0.0
          turn_player_1_action_0_what_2:   0.0
        turn_player_1_action_1_how_much:   0.0
@@ -510,11 +510,11 @@ The dimensions are as returned from the
          turn_player_1_action_1_what_2:   0.0
        turn_player_2_action_0_how_much:   0.0
          turn_player_2_action_0_what_0:   0.0
-         turn_player_2_action_0_what_1:   0.0
+         turn_player_2_action_0_what_1:   1.0
          turn_player_2_action_0_what_2:   0.0
        turn_player_2_action_1_how_much:   0.0
          turn_player_2_action_1_what_0:   0.0
-         turn_player_2_action_1_what_1:   0.0
+         turn_player_2_action_1_what_1:   1.0
          turn_player_2_action_1_what_2:   0.0
        turn_player_3_action_0_how_much:   0.0
          turn_player_3_action_0_what_0:   0.0
@@ -540,14 +540,14 @@ The dimensions are as returned from the
          turn_player_5_action_1_what_0:   0.0
          turn_player_5_action_1_what_1:   0.0
          turn_player_5_action_1_what_2:   0.0
-      river_player_0_action_0_how_much:   0.0
+      river_player_0_action_0_how_much:   0.1
         river_player_0_action_0_what_0:   0.0
         river_player_0_action_0_what_1:   0.0
-        river_player_0_action_0_what_2:   0.0
-      river_player_0_action_1_how_much:   0.0
+        river_player_0_action_0_what_2:   1.0
+      river_player_0_action_1_how_much:   0.6
         river_player_0_action_1_what_0:   0.0
         river_player_0_action_1_what_1:   0.0
-        river_player_0_action_1_what_2:   0.0
+        river_player_0_action_1_what_2:   1.0
       river_player_1_action_0_how_much:   0.0
         river_player_1_action_0_what_0:   0.0
         river_player_1_action_0_what_1:   0.0
@@ -556,14 +556,14 @@ The dimensions are as returned from the
         river_player_1_action_1_what_0:   0.0
         river_player_1_action_1_what_1:   0.0
         river_player_1_action_1_what_2:   0.0
-      river_player_2_action_0_how_much:   0.0
+      river_player_2_action_0_how_much:   0.3
         river_player_2_action_0_what_0:   0.0
         river_player_2_action_0_what_1:   0.0
-        river_player_2_action_0_what_2:   0.0
-      river_player_2_action_1_how_much:   0.0
+        river_player_2_action_0_what_2:   1.0
+      river_player_2_action_1_how_much:   1.0
         river_player_2_action_1_what_0:   0.0
         river_player_2_action_1_what_1:   0.0
-        river_player_2_action_1_what_2:   0.0
+        river_player_2_action_1_what_2:   1.0
       river_player_3_action_0_how_much:   0.0
         river_player_3_action_0_what_0:   0.0
         river_player_3_action_0_what_1:   0.0
@@ -588,4 +588,3 @@ The dimensions are as returned from the
         river_player_5_action_1_what_0:   0.0
         river_player_5_action_1_what_1:   0.0
         river_player_5_action_1_what_2:   0.0
-                          button_index:   1.0
