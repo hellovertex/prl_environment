@@ -694,7 +694,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
     def __init__(self, env):
         super().__init__(env=env)
         # todo: (?) check how obs is normalized to avoid small floats
-        self._normalization_sum = float(
+        self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
         self.num_players = env.N_SEATS
@@ -710,7 +710,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self.env.set_args(args)
         if not agent_observation_mode:
             agent_observation_mode = self.env.agent_observation_mode()
-        self._normalization_sum = float(
+        self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
         self.num_players = self.env.N_SEATS
@@ -735,7 +735,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         """
         obs = self._vectorizer.vectorize(env_obs, self._next_player_who_gets_observation,
                                          action_history=self._actions_per_stage,
-                                         player_hands=self._player_hands, normalization=self._normalization_sum)
+                                         player_hands=self._player_hands, normalization=self.normalization)
         # self.print_augmented_obs(obs)
         return obs
 
