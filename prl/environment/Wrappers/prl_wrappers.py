@@ -706,7 +706,9 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
 
-    def overwrite_args(self, args, agent_observation_mode=None):
+    def overwrite_args(self, args, agent_observation_mode=None, n_players=None):
+        if n_players:
+            self.num_players = n_players
         self.env.set_args(args)
         if not agent_observation_mode:
             agent_observation_mode = self.env.agent_observation_mode()
