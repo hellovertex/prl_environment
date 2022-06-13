@@ -590,3 +590,4 @@ The dimensions are as returned from the
         river_player_5_action_1_what_0:   0.0
         river_player_5_action_1_what_1:   0.0
         river_player_5_action_1_what_2:   0.0
+                          button_index:  3.0
