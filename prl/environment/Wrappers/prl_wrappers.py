@@ -6,6 +6,10 @@ from gym import spaces
 from collections import defaultdict, deque
 from prl.environment.steinberger.PokerRL.game.Poker import Poker
 
+FOLD = 0
+CHECK_CALL = 1
+RAISE = 2
+
 
 class Vectorizer:
     """ Abstract Vectorizer Interface. All vectorizers should be derived from this base class
@@ -16,6 +20,11 @@ class Vectorizer:
         raise NotImplementedError
 
 
+class AgentObservationType(enum.IntEnum):
+    CARD_KNOWLEDGE = 1  # default where agent only sees his own cards and the board
+    SEER = 2  # agent sees all player cards
+
+
 class CanonicalVectorizer(Vectorizer):
     """Docstring"""
 
@@ -23,18 +32,19 @@ class CanonicalVectorizer(Vectorizer):
     def __init__(self,
                  num_players,
                  obs_idx_dict,
-                 btn_pos,
+                 btn_pos,  # self.env.BTN_POS, always equal to 0
                  max_players=6,
                  n_ranks=13,
                  n_suits=4,
                  n_board_cards=5,
                  n_hand_cards=2,
-                 use_zero_padding=True):
+                 use_zero_padding=True,
+                 mode=AgentObservationType.CARD_KNOWLEDGE):
         # --- Utils --- #
-        # todo implement SEER mode
-        # if this switch is disabled, we use num_players instead of max_players
-        # todo implement this switch
+        # todo [optional] switch to use num_players instead of max_players
+        self._agent_observation_type = mode
         self._use_zero_padding = use_zero_padding
+        self._next_player_who_gets_observation = None
         self.num_players = num_players
         self.obs_idx_dict = obs_idx_dict
         self._max_players = max_players
@@ -98,6 +108,17 @@ class CanonicalVectorizer(Vectorizer):
                         + self._bits_action_history
         self._obs = np.zeros(self._obs_len)
 
+    @property
+    def agent_observation_mode(self):
+        return self._agent_observation_type
+
+    @agent_observation_mode.setter
+    def agent_observation_mode(self, mode: AgentObservationType):
+        self._agent_observation_type = mode
+
+    def vectorized_observation_shape(self):
+        return self._obs.shape
+
     def encode_table(self, obs):
         """Example:
                     ante:   0.0
@@ -115,11 +136,11 @@ class CanonicalVectorizer(Vectorizer):
 
     def encode_next_player(self, obs):
         """Example:
-            p0_acts_next:   0.0
-            p1_acts_next:   1.0
+            p0_acts_next:   1.0
+            p1_acts_next:   0.0
             p2_acts_next:   0.0
-          This encodes the btn_idx, because we moved self to index 0.
-          So we do not have to encode self._btn_idx explicitly.
+          Since this is relative to observer, p0_acts_next will always be 1.
+          We could remove this but keep it for consistency with the Steinberger Env.
         """
         self.offset += self._bits_next_player
         assert self.offset == self._start_stage
@@ -128,6 +149,7 @@ class CanonicalVectorizer(Vectorizer):
         end_orig = start_orig + self.num_players
         # extract from original observation
         bits = obs[start_orig:end_orig]
+        bits = np.roll(bits, -self._next_player_who_gets_observation)
         # zero padding
         bits = np.pad(bits, (0, self._max_players - self.num_players), 'constant')
         # copy from original observation with zero padding
@@ -168,11 +190,11 @@ class CanonicalVectorizer(Vectorizer):
         except Exception as e:
             bits = np.zeros(self.num_players)
 
-        # zero padding
-        bits = np.pad(bits, (0, self._max_players - self.num_players), 'constant')
-
         # move self to index 0
         bits = np.roll(bits, -self._next_player_who_gets_observation)
+
+        # zero padding
+        bits = np.pad(bits, (0, self._max_players - self.num_players), 'constant')
 
         # copy from original observation with zero padding
         self._obs[self._start_side_pots:self.offset] = bits
@@ -202,17 +224,15 @@ class CanonicalVectorizer(Vectorizer):
         end_orig = start_orig + self._bits_player_stats_original
         # extract from original observation
         bits = np.array(obs[start_orig:end_orig])
-        # zero padding
+        # zero padding in between players for additional side pot info
         bits_per_player = np.split(bits, self.num_players)
         bits_to_pad_in_between = np.zeros(self._max_players - self.num_players)
         padded_in_between = np.array([np.append(s, bits_to_pad_in_between) for s in bits_per_player])
-        padded_in_between = np.concatenate((padded_in_between, np.zeros((self._max_players - self.num_players, 10))))
-        padded_in_between = np.hstack(padded_in_between)  # flattened
-        # todo write test for this
-        # padded_in_between = np.resize(padded_in_between, self._bits_player_stats)
-        # move self to index 0
-        padded_in_between = np.roll(padded_in_between,
-                                    -self._next_player_who_gets_observation * self._bits_stats_per_player)
+        # roll
+        roll_by = -self._next_player_who_gets_observation
+        padded_in_between = np.roll(padded_in_between, roll_by, axis=0).flatten()
+        # zero padding until the end
+        padded_in_between = np.pad(padded_in_between, (0, self._bits_player_stats - len(padded_in_between)), 'constant')
 
         # copy from original observation with zero padding
         self._obs[self._start_player_stats:self.offset] = padded_in_between
@@ -329,6 +349,9 @@ class CanonicalVectorizer(Vectorizer):
         # replace NAN with 0
         # todo: if not SEER mode, set rolled_cards[2:] indices to zero
         rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
+        if not self._agent_observation_type == AgentObservationType.SEER:
+            # ignore all other players cards -> the agent should not see these
+            rolled_cards = rolled_cards[:2]
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ 0  0], [ 0  0]]
 
         # initialize hand_bits to 0
@@ -346,47 +369,50 @@ class CanonicalVectorizer(Vectorizer):
         # hand_bits = np.resize(hand_bits, self._bits_player_hands)
         self._obs[self._start_player_hands:self.offset] = hand_bits
 
-    def _vectorize_deque(self, dict_with_deque, normalization):
-        vectorized = np.zeros(self._bits_action_history_one_player)
-        if not 'preflop' in dict_with_deque.keys():
-            # action history is yet empty
-            return vectorized
+    @staticmethod
+    def _vectorize_deque(deq, normalization):
+        bits_per_action = 4  # ==len([IS_FOLD, IS_CHECK_CALL, IS_RAISE, ACTION_HOW_MUCH])
+        bits = [0 for _ in range(deq.maxlen * bits_per_action)]
+        for i, action in enumerate(deq):
+            how_much = 0 if not action[0] == RAISE else action[1] / normalization
+            idx_action = 1 + action[0]
+            bits[i * bits_per_action] = how_much
+            bits[i * bits_per_action + idx_action] = 1
+        return bits
 
-        for stage in dict_with_deque.keys():
-            if stage == 'keys':
-                continue
-            j = 0  # todo offset by stage count
-            for i, action in enumerate(dict_with_deque[stage]):
-                # set amount
-                vectorized[(j * 48) + i * self._bits_per_action] = action[1] / normalization
-                # set action one hot
-                vectorized[(j * 48) + action[0] + 1 + i * self._bits_per_action] = 1
-            j += 1
-        return vectorized
-
-    def encode_action_history(self, obs, normalization):
+    def encode_action_history(self, normalization):
         """Example:"""
         self.offset += self._bits_action_history
         assert self.offset == self._obs_len
-        idxs = [i for i in range(self._max_players)]
-        # indices relative to self
-        idxs = np.roll(idxs, -self._next_player_who_gets_observation)
-        bits = None
-        for idx in idxs:
-            if not isinstance(bits, np.ndarray):
-                bits = self._vectorize_deque(self._action_history.deque[idx], normalization)
-            else:
-                bits = np.append(bits, self._vectorize_deque(self._action_history.deque[idx], normalization))
-        bits = np.resize(bits, self._bits_action_history)
+        d = self._action_history.deque
+        _bits_action_history = 192
+        pids = [i for i in range(self.num_players)]
+        pids = np.roll(pids, - self._next_player_who_gets_observation)
+        bits = []
+        # iterate all players, get preflop actions
+        # iterate all players, get flop actions
+        # iterate all players, get turn actions
+        # iterate all players, get river actions
+        for stage in ['preflop', 'flop', 'turn', 'river']:
+            for pid in pids:
+                bits.append(self._vectorize_deque(d[pid][stage], normalization))
+            # append 0-bits for missing players
+            for _ in range(self._max_players - self.num_players):
+                bits.append([0, 0, 0, 0] * self._action_history.buffer_actions_per_stage())
+
+        # pad flattened numpy array with zeros
+        bits = np.array([bit for byte in bits for bit in byte])
+        # bits = np.pad(bits, (0, self._bits_action_history - len(bits)), 'constant')
         self._obs[self._start_action_history:self.offset] = bits
 
-    def vectorize(self, obs, player_who_acted=None, action_history=None, player_hands=None, normalization=None):
+    def vectorize(self, obs, _next_player_who_gets_observation=None, action_history=None, player_hands=None,
+                  normalization=None):
         # reset
         self._obs = np.zeros(self._obs_len)
         self.offset = None
         self._player_hands = player_hands
         self._action_history = action_history
-        self._next_player_who_gets_observation = player_who_acted
+        self._next_player_who_gets_observation = _next_player_who_gets_observation
         # encode
         self.encode_table(obs)
         self.encode_next_player(obs)
@@ -395,10 +421,13 @@ class CanonicalVectorizer(Vectorizer):
         self.encode_player_stats(obs)
         self.encode_board(obs)
         self.encode_player_hands(obs)
-        self.encode_action_history(obs, normalization)
-
+        self.encode_action_history(normalization)
+        # append button relative to observer
+        # [4,5,0,1,2,3] -> btn_idx = 2
+        # [1,2,3,4,5,0] -> btn_idx = 5
         assert self.offset == self._obs_len
-        return self._obs
+        # append offset to button at the end as a hotfix
+        return np.concatenate([self._obs, [self._next_player_who_gets_observation]])
 
 
 class Positions6Max(enum.IntEnum):
@@ -476,7 +505,6 @@ class WrapperPokerRL(Wrapper):
         if not self._player_hands:
             for i in range(self.env.N_SEATS):
                 self._player_hands.append(self.env.get_hole_cards_of_player(i))
-        # todo move this to proper location
         self._after_reset()
 
         return self._return_obs(env_obs=env_obs, rew_for_all_players=rew_for_all_players, done=done, info=info)
@@ -570,6 +598,9 @@ class ActionHistory:
                 lambda: deque(maxlen=max_actions_per_player_per_stage),
                 keys=['preflop', 'flop', 'turn', 'river'])
 
+    def buffer_actions_per_stage(self):
+        return self._max_actions_per_player_per_stage
+
     def __str__(self):
         representation = ""
         for player_seat_id in range(self._max_players):
@@ -585,6 +616,8 @@ class ActionHistory:
 
 
 class ActionHistoryWrapper(WrapperPokerRL):
+    """Intermediate wrapper that pushes back each action into a history buffer,
+    before passing it to the AugmentObservationWrapper"""
 
     def __init__(self, env):
         """
@@ -604,28 +637,21 @@ class ActionHistoryWrapper(WrapperPokerRL):
     def _before_step(self, action):
         """
         """
-        pass
-
-    def _after_step(self, action):
-        """Called before observation is computed by vectorizer"""
         # store action in history buffer
         self._pushback_action(action,
                               player_who_acted=self.env.current_player.seat_id,
                               in_which_stage=self.env.current_round)
+
+    def _after_step(self, action):
+        """Called before observation is computed by vectorizer"""
         self._next_player_who_gets_observation = self.env.current_player.seat_id
 
     def _before_reset(self, config=None):
         """Called before observation is computed by vectorizer"""
-        # for the initial case of the environment reset, we manually put player index to 0
-        # the player index is used to roll the observation bits relative to the acting player, so that each
-        # observation structure is the same for all agents
-        # after resetting, since no agent acted yet, we set `self._next_player_who_gets_observation` to zero,
-        # indicating that we do not want to roll the initial observation of the environment after resetting
-        # todo this should be not 0 but the first player to act
-        # todo above todo is done but docs should be updated
-        # so that observation will be rolled relative to self
-        if config is not None:
-            self._player_hands = config['deck_state_dict']['hand']
+        if config is not None and 'deck_state_dict' in config:
+            if 'hand' in config['deck_state_dict']:
+                # key 'hand' is set, when text files are parsed to vectorized observations
+                self._player_hands = config['deck_state_dict']['hand']
 
     def _after_reset(self):
         self._next_player_who_gets_observation = self.env.current_player.seat_id
@@ -666,11 +692,12 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
 # noinspection DuplicatedCode
 class AugmentObservationWrapper(ActionHistoryWrapper):
+    """Runs our custom vectorizer after computing the observation from the steinberger env"""
 
     def __init__(self, env):
         super().__init__(env=env)
         # todo: (?) check how obs is normalized to avoid small floats
-        self._normalization_sum = float(
+        self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
         self.num_players = env.N_SEATS
@@ -682,9 +709,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
 
-    def overwrite_args(self, args):
+    def overwrite_args(self, args, agent_observation_mode=None, n_players=None):
+        if n_players:
+            self.num_players = n_players
         self.env.set_args(args)
-        self._normalization_sum = float(
+        if not agent_observation_mode:
+            agent_observation_mode = self.env.agent_observation_mode()
+        self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
         self.num_players = self.env.N_SEATS
@@ -693,6 +724,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
+        self._vectorizer.agent_observation_mode = agent_observation_mode
+
+    def agent_observation_mode(self):
+        return self._vectorizer.agent_observation_mode
+
+    def set_agent_observation_mode(self, mode: AgentObservationType):
+        self._vectorizer.agent_observation_mode = mode
 
     def get_current_obs(self, env_obs):
         """
@@ -702,9 +740,12 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         """
         obs = self._vectorizer.vectorize(env_obs, self._next_player_who_gets_observation,
                                          action_history=self._actions_per_stage,
-                                         player_hands=self._player_hands, normalization=self._normalization_sum)
+                                         player_hands=self._player_hands, normalization=self.normalization)
         # self.print_augmented_obs(obs)
         return obs
+
+    def get_legal_actions(self):
+        return self.env.get_legal_actions()
 
     def get_info(self):
         return self.env.get_info()
@@ -842,6 +883,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         # Tuple (lots of spaces.Discrete and spaces.Box)
         _observation_space = spaces.Tuple(_table_space + _player_space + _board_space)
         _observation_space.shape = [len(_observation_space.spaces)]
+
         return _observation_space, obs_idx_dict, obs_parts_idxs_dict
 
     def print_augmented_obs(self, obs):
