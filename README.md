@@ -13,7 +13,7 @@ The repository is used in my thesis related projects
 - Observation is always encoded relative to observer, so that each bit has a fixed meaning
 - The offset to the acting player is one-hot encoded by the `player_acts_next` bit. 
 - The button position is encoded by the `button_index` bit. 
-- The dimensions are mostly one-hot encoded except for bet sizes and min_raise, which are normalized floats
+- The features are mostly one-hot encoded except for bet sizes and min_raise, which are normalized floats
 - The vectorized observation has 565 dimensions
 
 The dimensions are as returned from the 
