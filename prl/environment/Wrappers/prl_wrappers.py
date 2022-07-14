@@ -338,6 +338,8 @@ class CanonicalVectorizer(Vectorizer):
 
     def encode_player_hands(self, obs):
         """Example:"""
+        # todo this returns zero if player hands have not been set by ditionary,
+        #  instead get them from observation
         self.offset += self._bits_player_hands
         assert self.offset == self._start_action_history
         # move own cards to index 0
@@ -345,6 +347,7 @@ class CanonicalVectorizer(Vectorizer):
         rolled_cards = np.roll(self._player_hands, roll_by, axis=0).reshape(-1, self._n_hand_cards)
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ -127  -127], [ -127  -127]]
         # replace NAN with 0
+        # todo: if not SEER mode, set rolled_cards[2:] indices to zero
         rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
         if not self._agent_observation_type == AgentObservationType.SEER:
             # ignore all other players cards -> the agent should not see these
