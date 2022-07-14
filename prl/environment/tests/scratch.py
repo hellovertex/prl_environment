@@ -288,6 +288,13 @@ def test_six_player_action_history():
     # scenario 4: pre flop all ins -> rundown till showdown
     pass
 
+def test_payouts():
+    env = make_wrapped_env(n_players=3,
+                           starting_stack_sizes=[2000 for _ in range(3)])
+    obs, _, _, _ = env.reset()
+    env.step(2,200)
+    env.step(2,2000)
+    env.step(0, -1)
 
 if __name__ == '__main__':
     for n_players in range(2, 7):
@@ -300,3 +307,4 @@ if __name__ == '__main__':
     test_two_player_action_history_preflop()
     test_two_player_action_history_flop()
     test_three_player_action_history()
+    test_payouts()

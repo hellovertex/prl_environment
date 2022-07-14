@@ -353,8 +353,10 @@ class CanonicalVectorizer(Vectorizer):
 
         # initialize hand_bits to 0
         card_bits = self.n_ranks + self.n_suits
-        hand_bits = [0] * self._n_hand_cards * self.num_players * card_bits
+        # hand_bits = [0] * self._n_hand_cards * self.num_players * card_bits
+        hand_bits = [0] * self._bits_player_hands
         # overwrite one_hot card_bits
+        print(f'NUM_PLAYERS INSIDE VEC = {self.num_players}')
         for n_card, card in enumerate(rolled_cards):
             offset = card_bits * n_card
             # set rank
@@ -362,7 +364,7 @@ class CanonicalVectorizer(Vectorizer):
             # set suit
             hand_bits[card[1] + offset + self.n_ranks] = 1
         # zero padding
-        hand_bits = np.pad(hand_bits, (0, self._bits_player_hands - len(hand_bits)), 'constant')
+        # hand_bits = np.pad(hand_bits, (0,  - len(hand_bits)), 'constant')
         # hand_bits = np.resize(hand_bits, self._bits_player_hands)
         self._obs[self._start_player_hands:self.offset] = hand_bits
 
