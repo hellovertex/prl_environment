@@ -24,6 +24,7 @@ setup(
     extras_require={
         'distributed': requirements_dist,
     },
+    package_data={'': ['**/*.so', '**/*.dll']},
     include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
