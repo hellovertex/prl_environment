@@ -716,7 +716,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
             self.num_players = n_players
         self.env.set_args(args)
         if not agent_observation_mode:
-            agent_observation_mode = self.env.agent_observation_mode()
+            agent_observation_mode = self.agent_observation_mode()
         self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
