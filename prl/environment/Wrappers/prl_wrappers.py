@@ -359,7 +359,7 @@ class CanonicalVectorizer(Vectorizer):
         # hand_bits = [0] * self._n_hand_cards * self.num_players * card_bits
         hand_bits = [0] * self._bits_player_hands
         # overwrite one_hot card_bits
-        print(f'NUM_PLAYERS INSIDE VEC = {self.num_players}')
+        # print(f'NUM_PLAYERS INSIDE VEC = {self.num_players}')
         for n_card, card in enumerate(rolled_cards):
             offset = card_bits * n_card
             # set rank
