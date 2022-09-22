@@ -673,7 +673,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
             else:
                 return ActionSpace.ALL_IN
         else:  # action is fold or check/call
-            action_discretized = action_formatted[0]
+            action_discretized = ActionSpace(action_formatted[0])
         return action_discretized
 
     def _pushback_action(self, action_formatted, player_who_acted, in_which_stage):
