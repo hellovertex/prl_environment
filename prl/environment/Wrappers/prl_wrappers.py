@@ -576,14 +576,11 @@ class WrapperPokerRL(Wrapper):
 class ActionSpace(enum.IntEnum):
     """Under Construction"""
     FOLD = 0
-    CHECK = 1
-    CALL = 2
-    RAISE_MIN_OR_3BB = 3
-    RAISE_HALF_POT = 4
-    RAISE_POT = 5
-    ALL_IN = 6
-    SMALL_BLIND = 7
-    BIG_BLIND = 8
+    CHECK_CALL = 1
+    RAISE_MIN_OR_3BB = 2
+    RAISE_HALF_POT = 3
+    RAISE_POT = 4
+    ALL_IN = 5
 
 
 class ActionHistory:
