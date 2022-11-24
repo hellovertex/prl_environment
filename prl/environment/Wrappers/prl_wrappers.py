@@ -540,7 +540,7 @@ class WrapperPokerRL(EnvWrapperBase):
         Returns:
             obs, reward, done, info
         """
-        if isinstance(action, int):
+        if isinstance(action, int) or isinstance(action, np.int64):
             action = self.int_action_to_tuple_action(action)
         # callbacks in derived class
         self._before_step(action)
@@ -684,22 +684,25 @@ class ActionHistoryWrapper(WrapperPokerRL):
     # _______________________________ Action History ________________________________
 
     def discretize(self, action_formatted):
-        if isinstance(action_formatted, int):
-            return ActionSpace(action_formatted)
-        if action_formatted[0] == 2:  # action is raise
-            pot_size = self.env.get_all_winnable_money()
-            raise_amt = action_formatted[1]
-            if raise_amt < pot_size / 2:
-                return ActionSpace.RAISE_MIN_OR_3BB
-            elif raise_amt < pot_size:
-                return ActionSpace.RAISE_HALF_POT
-            elif raise_amt < 2 * pot_size:
-                return ActionSpace.RAISE_POT
-            else:
-                return ActionSpace.ALL_IN
-        else:  # action is fold or check/call
-            action_discretized = ActionSpace(action_formatted[0])
-        return action_discretized
+        try:
+            if isinstance(action_formatted, int) or isinstance(action_formatted, np.int64):
+                return ActionSpace(action_formatted)
+            if action_formatted[0] == 2:  # action is raise
+                pot_size = self.env.get_all_winnable_money()
+                raise_amt = action_formatted[1]
+                if raise_amt < pot_size / 2:
+                    return ActionSpace.RAISE_MIN_OR_3BB
+                elif raise_amt < pot_size:
+                    return ActionSpace.RAISE_HALF_POT
+                elif raise_amt < 2 * pot_size:
+                    return ActionSpace.RAISE_POT
+                else:
+                    return ActionSpace.ALL_IN
+            else:  # action is fold or check/call
+                return ActionSpace(action_formatted[0])
+        except Exception as e:
+            raise e
+
 
     def _pushback_action(self, action_formatted, player_who_acted, in_which_stage):
         # part of observation
