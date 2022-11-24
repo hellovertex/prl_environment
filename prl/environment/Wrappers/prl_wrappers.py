@@ -1,6 +1,7 @@
 import enum
 from typing import List, Optional
 
+import gym
 import numpy as np
 from gym import spaces
 from collections import defaultdict, deque
@@ -434,8 +435,8 @@ class CanonicalVectorizer(Vectorizer):
 
 class Positions6Max(enum.IntEnum):
     """Positions as in the literature, for a table with at most 6 Players.
-BTN for Button, SB for Small Blind, etc...
-"""
+    BTN for Button, SB for Small Blind, etc...
+    """
     BTN = 0
     SB = 1
     BB = 2
@@ -444,7 +445,7 @@ BTN for Button, SB for Small Blind, etc...
     CO = 5  # CutOff
 
 
-class Wrapper:
+class EnvWrapperBase:
 
     def __init__(self, env):
         """
@@ -480,11 +481,12 @@ class Wrapper:
         raise NotImplementedError("Not implemented in Abstract Base class")
 
 
-class WrapperPokerRL(Wrapper):
+class WrapperPokerRL(EnvWrapperBase):
 
     def __init__(self, env):
         super().__init__(env)
         self._player_hands = []
+        self._player_who_gets_observation = None
 
     def reset(self, config=None):
         """
@@ -504,12 +506,32 @@ class WrapperPokerRL(Wrapper):
         if config is not None:
             deck_state_dict = config['deck_state_dict']
         env_obs, rew_for_all_players, done, info = self.env.reset(deck_state_dict=deck_state_dict)
+        self._player_who_gets_reward = self.env.current_player.seat_id
         if not self._player_hands:
             for i in range(self.env.N_SEATS):
                 self._player_hands.append(self.env.get_hole_cards_of_player(i))
         self._after_reset()
 
         return self._return_obs(env_obs=env_obs, rew_for_all_players=rew_for_all_players, done=done, info=info)
+
+    def int_action_to_tuple_action(self, a):
+
+        if a == ActionSpace.FOLD:
+            return (0, -1)
+        else:
+            pot_size = self.env.get_all_winnable_money()
+            if a == ActionSpace.CHECK_CALL:
+                # check or call appropriate size (automatically via pot_size)
+                return (1, pot_size)  # when calling with pot_size, the env scales it down to the appropriate call size
+            elif a == ActionSpace.RAISE_MIN_OR_3BB:
+                return (2, self.env._get_current_total_min_raise())
+            elif a == ActionSpace.RAISE_HALF_POT:
+                return (2, int(pot_size / 2))  # residuals of division shouldnt cause problems
+            elif a == ActionSpace.RAISE_POT:
+                return (2, pot_size)
+            elif a == ActionSpace.ALL_IN:
+                return (2, self.env.current_player.stack)
+        return a
 
     def step(self, action):
         """
@@ -518,16 +540,20 @@ class WrapperPokerRL(Wrapper):
         Returns:
             obs, reward, done, info
         """
-
+        if isinstance(action, int):
+            action = self.int_action_to_tuple_action(action)
         # callbacks in derived class
         self._before_step(action)
-
+        self._player_who_gets_reward = self.env.current_player.seat_id
         # step environment
         env_obs, rew_for_all_players, done, info = self.env.step(action)
 
         self._after_step(action)
         # call get_current_obs of derived class
-        return self._return_obs(env_obs=env_obs, rew_for_all_players=rew_for_all_players, done=done, info=info)
+        return self._return_obs(env_obs=env_obs, 
+                                rew_for_all_players=rew_for_all_players[self._player_who_gets_reward], 
+                                done=done, 
+                                info=info)
 
     def step_from_processed_tuple(self, action):
         """
@@ -658,6 +684,8 @@ class ActionHistoryWrapper(WrapperPokerRL):
     # _______________________________ Action History ________________________________
 
     def discretize(self, action_formatted):
+        if isinstance(action_formatted, int):
+            return ActionSpace(action_formatted)
         if action_formatted[0] == 2:  # action is raise
             pot_size = self.env.get_all_winnable_money()
             raise_amt = action_formatted[1]
@@ -703,6 +731,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self.max_players = 6
         self.num_board_cards = 5
         self.observation_space, self.obs_idx_dict, self.obs_parts_idxs_dict = self._construct_obs_space()
+        self.action_space = gym.spaces.Discrete(ActionSpace.__len__())
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
@@ -730,7 +759,8 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
 
     def set_agent_observation_mode(self, mode: AgentObservationType):
         self._vectorizer.agent_observation_mode = mode
-
+    
+    # @override
     def get_current_obs(self, env_obs):
         """
         Args:
@@ -880,9 +910,18 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
 
         # __________________________  Return Complete _Observation Space  __________________________
         # Tuple (lots of spaces.Discrete and spaces.Box)
-        _observation_space = spaces.Tuple(_table_space + _player_space + _board_space)
-        _observation_space.shape = [len(_observation_space.spaces)]
-
+        _observation_space = spaces.Tuple(_table_space +
+                                          _player_space +
+                                          _board_space +
+                                          _handcards_space +
+                                          _action_history_space +
+                                          [spaces.Discrete(1)]  # for btn_index which we added manually later
+                                          )
+        try:
+            _observation_space.shape = [len(_observation_space.spaces)]
+        except AttributeError:
+            # newer version of gym dont allow setting shape attr
+            pass
         return _observation_space, obs_idx_dict, obs_parts_idxs_dict
 
     def print_augmented_obs(self, obs):
@@ -1458,6 +1497,7 @@ preflop_player_5_action_1_how_much:   0.0
             name = name.rjust(str_len)
             print(name, obs[self.obs_idx_dict[key]])
 
+        
     @property
     def current_player(self):
         return self.env.current_player
