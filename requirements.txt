@@ -1,6 +1,11 @@
 requests
 wheel
-gym==0.10.9
+gym~=0.23.1
 pycrayon==0.5
-psutil
+psutil~=5.9.1
 torch~=1.11
+numpy~=1.22.0
+pydantic~=1.9.1
+ray~=2.1.0
+scipy~=1.8.1
+setuptools~=44.0.0
