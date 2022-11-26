@@ -1,8 +1,7 @@
 # 2. roll stack sizes
-import numpy as np
 
-from prl.environment.Wrappers.prl_wrappers import ActionHistory, AgentObservationType
-from prl.environment.tests.utils import make_wrapped_env
+from prl.environment.Wrappers.augment import AgentObservationType
+from prl.environment.Wrappers.tests.utils import make_wrapped_env
 
 DEFAULT_STARTING_STACK_SIZE = 20000
 

@@ -1,4 +1,4 @@
-from prl.environment.Wrappers.prl_wrappers import AugmentObservationWrapper
+from prl.environment.Wrappers.augment import AugmentObservationWrapper
 from prl.environment.steinberger.PokerRL import NoLimitHoldem
 
 
