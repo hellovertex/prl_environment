@@ -13,6 +13,7 @@ def make_multi_agent_env(env_config):
         """Single Env holding multiple agents. Implements rllib.env.MultiAgentEnv to
         become vectorizable by rllib via `num_envs_per_worker` that can be increased via
         the algorithm config. """
+
         # see https://docs.ray.io/en/master/rllib/rllib-env.html
         def __init__(self, config: EnvContext):
             # config: EnvContext is not called here directly,
@@ -21,70 +22,92 @@ def make_multi_agent_env(env_config):
             self._n_players = env_config['n_players']
             self._starting_stack_size = env_config['starting_stack_size']
             self._env_cls = env_config['env_wrapper_cls']
-            self._num_envs = env_config['num_envs']
-            self.envs = [self._single_env() for _ in range(self._num_envs)]
-            self.action_space = self.envs[0].action_space  # not batched, rllib wants that to be for single env
-            # self.observation_space = self.envs[
+            self.env_wrapped = self._single_env()
+            self._num_agents = self._n_players  # keep naming consistency with rllib
+            self.agents = env_config['agents']
+            self.action_space = self.env_wrapped.action_space  # not batched, rllib wants that to be for single env
+            # self.observation_space = self.agents[
             #     0].observation_space  # not batched, rllib wants that to be for single env
             # self.observation_space.dtype = np.float32
+            # todo fix following monkeypatch:
             self.observation_space = Box(low=0.0, high=6.0, shape=(564,), dtype=np.float64)
-            self._agent_ids = set(range(self._num_envs))  # _agent_ids name is enforced by rllib
+            self._agent_ids = list(self.agents.keys())
 
             MultiAgentEnv.__init__(self)
-            self.dones = set()
-            self.rewards = {}
-            self.acting_seat = None
 
         def _single_env(self):
             return init_wrapped_env(self._env_cls, [self._starting_stack_size for _ in range(self._n_players)])
 
         @override(MultiAgentEnv)
         def reset(self):
-            self.dones = set()
-            self.rewards = {}
-            # return only obs nothing else, for each env
-            self.acting_seat = 0
-            return {i: env.reset()[0] for i, env in enumerate(self.envs)}
-
-        def cumulate_rewards(self, rew):
-            # update per agent reward
-            if not self.acting_seat in self.rewards:
-                self.rewards[self.acting_seat] = rew
-            else:
-                # update rew of agent on every sub env
-                for key in self.rewards[self.acting_seat].keys():
-                    self.rewards[self.acting_seat][key] += rew[key]
+            # return only obs, nothing else
+            obs, _, _, _ = self.env_wrapped.reset()
+            next_to_act = self.env_wrapped.env.current_player.seat_id
+            return {next_to_act: obs}
 
         @override(MultiAgentEnv)
         def step(self, action_dict):
             """When implementing your own MultiAgentEnv, note that you should only return those agent IDs in an
             observation dict, for which you expect to receive actions in the next call to step().
 
+            From the rllib docs:
+            # Env, in which two agents step in sequence (tuen-based game).
+            # The env is in charge of the produced agent ID. Our env here produces
+            # agent IDs: "player1" and "player2".
+            env = TicTacToe()
 
+            # Observations are a dict mapping agent names to their obs. Only those
+            # agents' names that require actions in the next call to `step()` should
+            # be present in the returned observation dict (here: one agent at a time).
+            print(env.reset())
+            # ... {
+            # ...   "player1": [[...]],
+            # ... }
 
+            # In the following call to `step`, only those agents' actions should be
+            # provided that were present in the returned obs dict:
+            new_obs, rewards, dones, infos = env.step(actions={"player1": ...})
+
+            # Similarly, new_obs, rewards, dones, etc. also become dicts.
+            # Note that only in the `rewards` dict, any agent may be listed (even those that have
+            # not(!) acted in the `step()` call). Rewards for individual agents will be added
+            # up to the point where a new action for that agent is needed. This way, you may
+            # implement a turn-based 2-player game, in which player-2's reward is published
+            # in the `rewards` dict immediately after player-1 has acted.
+            print(rewards)
+            # ... {"player1": 0, "player2": 0}
+
+            # Individual agents can early exit; The entire episode is done when
+            # dones["__all__"] = True.
+            print(dones)
+            # ... {"player1": False, "__all__": False}
+
+            # In the next step, it's player2's turn. Therefore, `new_obs` only container
+            # this agent's ID:
+            print(new_obs)
+            # ... {
+            # ...   "player2": [[...]]
+            # ... }
             """
-            # agent A acts a --> step(a) --> obs, rew;  rew to A, obs to B?
-            obs, rew, done, info = {}, {}, {}, {}
 
-            for i, action in action_dict.items():
-                obs[i], rew[i], done[i], info[i] = self.envs[i].step(action)
-                if i in self.rewards:
-                    # self.rewards[i] += rew[i]
-                    self.rewards[i] += 0
-                else:
-                    self.rewards[i] = rew[i]
-                if done[i]:
-                    self.dones.add(i)
-            done["__all__"] = len(self.dones) == len(self.envs)
+            observations, rewards, dones, infos = {}, {}, {}, {}
 
-            # do we have to do a vector of cumulative rewards and select the right one to return?
-            # e.g.  return the added 20 from [10,20,-5,30] and reset it to [10,0,-5,30] etc?
-            # todo: fix the rewarding of agents AFTER having debug setup ready
-            # self.cumulate_rewards(rew)
-            # self.acting_seat = (self.acting_seat + 1) % self._n_players
-            # rew = self.rewards[self.acting_seat]
-            # self.rewards[self.acting_seat]
-            return obs, {0: 0.01, 1: 0.01}, done, info
+            # make sure only one player acted and step environment with its action
+            have_played = list(action_dict.keys())
+            has_played = have_played[0]
+            assert len(have_played) == 1
+            action = action_dict[has_played]
+            obs, rews, done, info = self.env_wrapped.step(action)
+
+            # assign returned observation to new player,
+            # dones to old player and reward for all players
+            next = self.env_wrapped.env.current_player.seat_id
+            observations[next] = obs
+            for i, v in enumerate(rews):
+                rewards[i] = v/self._n_players  # normalize v because rllib stacks rewards per round
+            dones[has_played] = done
+            dones["__all__"] = done
+            return observations, rewards, dones, infos
 
         @override(MultiAgentEnv)
         def render(self, mode='human'):
@@ -94,7 +117,7 @@ def make_multi_agent_env(env_config):
         def observation_space_sample(self, agent_ids: list = None) -> MultiAgentDict:
             """The name 'agent_ids' is taken from rllib's core fn, although I think env_ids would be better"""
             if agent_ids is None:
-                agent_ids = list(range(len(self.envs)))
+                agent_ids = list(range(len(self.agents)))
             obs = {agent_id: self.observation_space.sample() for agent_id in agent_ids}
 
             return obs
@@ -103,7 +126,7 @@ def make_multi_agent_env(env_config):
         def action_space_sample(self, agent_ids: list = None) -> MultiAgentDict:
             """The name 'agent_ids' is taken from rllib's core fn, although I think env_ids would be better"""
             if agent_ids is None:
-                agent_ids = list(range(len(self.envs)))
+                agent_ids = list(range(len(self.agents)))
             actions = {agent_id: self.action_space.sample() for agent_id in agent_ids}
             return actions
 

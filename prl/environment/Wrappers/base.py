@@ -79,9 +79,6 @@ class WrapperPokerRL(EnvWrapperBase):
         # reset env
         env_obs, rew_for_all_players, done, info = self.env.reset(deck_state_dict=deck_state_dict)
 
-        # monkey patched this while implementing multi-agent environment wrapper to keep track of who gets reward
-        self._player_who_gets_reward = self.env.current_player.seat_id
-
         # Convenient access to hand cards of each player
         if not self._player_hands:
             for i in range(self.env.N_SEATS):
@@ -120,14 +117,13 @@ class WrapperPokerRL(EnvWrapperBase):
             action = self.int_action_to_tuple_action(action)
         # callbacks in derived class
         self._before_step(action)
-        self._player_who_gets_reward = self.env.current_player.seat_id
         # step environment
         env_obs, rew_for_all_players, done, info = self.env.step(action)
 
         self._after_step(action)
         # call get_current_obs of derived class
         return self._return_obs(env_obs=env_obs,
-                                rew_for_all_players=rew_for_all_players[self._player_who_gets_reward],
+                                rew_for_all_players=rew_for_all_players,
                                 done=done,
                                 info=info)
 
