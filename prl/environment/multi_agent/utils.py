@@ -10,9 +10,10 @@ from prl.environment.Wrappers.utils import init_wrapped_env
 
 def make_multi_agent_env(env_config):
     class _RLLibSteinbergerEnv(MultiAgentEnv):
-        """Single Env that will be passed to rllib.env.MultiAgentEnv
-        which internally creates n copies and decorates each env-copy with @ray.remote."""
-
+        """Single Env holding multiple agents. Implements rllib.env.MultiAgentEnv to
+        become vectorizable by rllib via `num_envs_per_worker` that can be increased via
+        the algorithm config. """
+        # see https://docs.ray.io/en/master/rllib/rllib-env.html
         def __init__(self, config: EnvContext):
             # config: EnvContext is not called here directly,
             # but it is called in ray.rllib.algorithm._get_env_id_and_creator
@@ -56,13 +57,20 @@ def make_multi_agent_env(env_config):
 
         @override(MultiAgentEnv)
         def step(self, action_dict):
+            """When implementing your own MultiAgentEnv, note that you should only return those agent IDs in an
+            observation dict, for which you expect to receive actions in the next call to step().
+
+
+
+            """
             # agent A acts a --> step(a) --> obs, rew;  rew to A, obs to B?
             obs, rew, done, info = {}, {}, {}, {}
 
             for i, action in action_dict.items():
                 obs[i], rew[i], done[i], info[i] = self.envs[i].step(action)
                 if i in self.rewards:
-                    self.rewards[i] += rew[i]
+                    # self.rewards[i] += rew[i]
+                    self.rewards[i] += 0
                 else:
                     self.rewards[i] = rew[i]
                 if done[i]:
@@ -76,7 +84,7 @@ def make_multi_agent_env(env_config):
             # self.acting_seat = (self.acting_seat + 1) % self._n_players
             # rew = self.rewards[self.acting_seat]
             # self.rewards[self.acting_seat]
-            return obs, rew, done, info
+            return obs, {0: 0.01, 1: 0.01}, done, info
 
         @override(MultiAgentEnv)
         def render(self, mode='human'):

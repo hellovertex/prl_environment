@@ -92,7 +92,6 @@ class WrapperPokerRL(EnvWrapperBase):
         return self._return_obs(env_obs=env_obs, rew_for_all_players=rew_for_all_players, done=done, info=info)
 
     def int_action_to_tuple_action(self, a):
-
         if a == ActionSpace.FOLD:
             return (0, -1)
         else:
@@ -117,7 +116,7 @@ class WrapperPokerRL(EnvWrapperBase):
         Returns:
             obs, reward, done, info
         """
-        if isinstance(action, int) or isinstance(action, np.int64):
+        if isinstance(action, int) or isinstance(action, np.integer):
             action = self.int_action_to_tuple_action(action)
         # callbacks in derived class
         self._before_step(action)

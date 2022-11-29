@@ -95,7 +95,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
     def discretize(self, action_formatted):
         try:
-            if isinstance(action_formatted, int) or isinstance(action_formatted, np.int64):
+            if isinstance(action_formatted, int) or isinstance(action_formatted, np.integer):
                 return ActionSpace(action_formatted)
             if action_formatted[0] == 2:  # action is raise
                 pot_size = self.env.get_all_winnable_money()
@@ -111,6 +111,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
             else:  # action is fold or check/call
                 return ActionSpace(action_formatted[0])
         except Exception as e:
+            print(f"ACTION TYPE = {type(action_formatted)}")
             raise e
 
 
