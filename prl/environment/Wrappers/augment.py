@@ -7,7 +7,7 @@ from gym import spaces
 from collections import defaultdict, deque
 
 from prl.environment.Wrappers.aoh import ActionHistoryWrapper
-from prl.environment.Wrappers.prl_wrappers import ActionSpace
+from prl.environment.Wrappers.base import ActionSpace
 from prl.environment.Wrappers.vectorizer import CanonicalVectorizer, AgentObservationType
 from prl.environment.steinberger.PokerRL.game.Poker import Poker
 

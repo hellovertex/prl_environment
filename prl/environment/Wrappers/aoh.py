@@ -3,7 +3,7 @@ from collections import defaultdict, deque
 
 import numpy as np
 
-from prl.environment.Wrappers.prl_wrappers import WrapperPokerRL, ActionSpace
+from prl.environment.Wrappers.base import WrapperPokerRL, ActionSpace
 
 
 class Positions6Max(enum.IntEnum):
