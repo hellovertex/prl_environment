@@ -1,5 +1,6 @@
+import gym
 import numpy as np
-from gym.spaces import Box
+from gym.spaces import Box, Discrete, MultiBinary
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 from ray.rllib.utils import override
@@ -30,7 +31,15 @@ def make_multi_agent_env(env_config):
             #     0].observation_space  # not batched, rllib wants that to be for single env
             # self.observation_space.dtype = np.float32
             # todo fix following monkeypatch:
-            self.observation_space = Box(low=0.0, high=6.0, shape=(564,), dtype=np.float64)
+            obs_space = Box(low=0.0, high=6.0, shape=(564,), dtype=np.float64)
+            self.observation_space = obs_space
+            if 'mask_legal_moves' in env_config:
+                if env_config['mask_legal_moves']:
+                    self.observation_space = gym.spaces.Dict({
+                        'observation': obs_space,
+                        'legal_moves': MultiBinary(3)  # one-hot encoded [FOLD, CHECK_CALL, RAISE]
+                    })
+
             self._agent_ids = list(self.agents.keys())
 
             MultiAgentEnv.__init__(self)
@@ -41,9 +50,11 @@ def make_multi_agent_env(env_config):
         @override(MultiAgentEnv)
         def reset(self):
             # return only obs, nothing else
-            obs, _, _, _ = self.env_wrapped.reset()
+            obs, _, _, info = self.env_wrapped.reset(config=None)
             next_to_act = self.env_wrapped.env.current_player.seat_id
-            return {next_to_act: obs}
+            legal_moves = np.array([0, 0, 0])
+            legal_moves[self.env_wrapped.env.get_legal_actions()] += 1
+            return {next_to_act: {'observation': obs, 'legal_moves': legal_moves}}
 
         @override(MultiAgentEnv)
         def step(self, action_dict):
@@ -98,13 +109,14 @@ def make_multi_agent_env(env_config):
             assert len(have_played) == 1
             action = action_dict[has_played]
             obs, rews, done, info = self.env_wrapped.step(action)
-
+            legal_moves = np.array([0, 0, 0])
+            legal_moves[self.env_wrapped.env.get_legal_actions()] += 1
             # assign returned observation to new player,
             # dones to old player and reward for all players
             next = self.env_wrapped.env.current_player.seat_id
-            observations[next] = obs
+            observations[next] = {'observation': obs, 'legal_moves': legal_moves}
             for i, v in enumerate(rews):
-                rewards[i] = v/self._n_players  # normalize v because rllib stacks rewards per round
+                rewards[i] = v / self._n_players  # normalize v because rllib stacks rewards per round
             dones[has_played] = done
             dones["__all__"] = done
             return observations, rewards, dones, infos
@@ -145,4 +157,3 @@ def make_multi_agent_env(env_config):
             return all(self.observation_space.contains(val) for val in x.values())
 
     return _RLLibSteinbergerEnv
-
