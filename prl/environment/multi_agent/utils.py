@@ -36,7 +36,7 @@ def make_multi_agent_env(env_config):
             if 'mask_legal_moves' in env_config:
                 if env_config['mask_legal_moves']:
                     self.observation_space = gym.spaces.Dict({
-                        'observation': obs_space,
+                        'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
                         'legal_moves': MultiBinary(3)  # one-hot encoded [FOLD, CHECK_CALL, RAISE]
                     })
 
