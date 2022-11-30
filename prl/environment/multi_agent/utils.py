@@ -54,7 +54,7 @@ def make_multi_agent_env(env_config):
             next_to_act = self.env_wrapped.env.current_player.seat_id
             legal_moves = np.array([0, 0, 0])
             legal_moves[self.env_wrapped.env.get_legal_actions()] += 1
-            return {next_to_act: {'observation': obs, 'legal_moves': legal_moves}}
+            return {next_to_act: {'obs': obs, 'legal_moves': legal_moves}}
 
         @override(MultiAgentEnv)
         def step(self, action_dict):
@@ -114,7 +114,7 @@ def make_multi_agent_env(env_config):
             # assign returned observation to new player,
             # dones to old player and reward for all players
             next = self.env_wrapped.env.current_player.seat_id
-            observations[next] = {'observation': obs, 'legal_moves': legal_moves}
+            observations[next] = {'obs': obs, 'legal_moves': legal_moves}
             for i, v in enumerate(rews):
                 rewards[i] = v / self._n_players  # normalize v because rllib stacks rewards per round
             dones[has_played] = done
@@ -136,7 +136,6 @@ def make_multi_agent_env(env_config):
 
         @override(MultiAgentEnv)
         def action_space_sample(self, agent_ids: list = None) -> MultiAgentDict:
-            """The name 'agent_ids' is taken from rllib's core fn, although I think env_ids would be better"""
             if agent_ids is None:
                 agent_ids = list(range(len(self.agents)))
             actions = {agent_id: self.action_space.sample() for agent_id in agent_ids}
@@ -144,16 +143,18 @@ def make_multi_agent_env(env_config):
 
         @override(MultiAgentEnv)
         def action_space_contains(self, x: MultiAgentDict) -> bool:
-            """The name 'agent_ids' is taken from rllib's core fn, although I think env_ids would be better"""
             if not isinstance(x, dict):
                 return False
             return all(self.action_space.contains(val) for val in x.values())
 
         @override(MultiAgentEnv)
         def observation_space_contains(self, x: MultiAgentDict) -> bool:
-            """The name 'agent_ids' is taken from rllib's core fn, although I think env_ids would be better"""
             if not isinstance(x, dict):
                 return False
-            return all(self.observation_space.contains(val) for val in x.values())
+            obs_dict = list(x.values())[0]
+            if type(obs_dict) == dict:
+                return self.observation_space['obs'].contains(obs_dict['obs'])
+            else:
+                return all(self.observation_space.contains(val) for val in x.values())
 
     return _RLLibSteinbergerEnv
