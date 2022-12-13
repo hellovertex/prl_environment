@@ -64,7 +64,10 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         """
         obs = self._vectorizer.vectorize(env_obs, self._next_player_who_gets_observation,
                                          action_history=self._actions_per_stage,
-                                         player_hands=self._player_hands, normalization=self.normalization)
+                                         player_hands=self._player_hands,
+                                         # player_hands=[self.env.get_hole_cards_of_player(i)
+                                         #               for i in range(self.num_players)],
+                                         normalization=self.normalization)
         # self.print_augmented_obs(obs)
         return obs
 

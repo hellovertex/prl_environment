@@ -80,9 +80,9 @@ class WrapperPokerRL(EnvWrapperBase):
         env_obs, rew_for_all_players, done, info = self.env.reset(deck_state_dict=deck_state_dict)
 
         # Convenient access to hand cards of each player
-        if not self._player_hands:
-            for i in range(self.env.N_SEATS):
-                self._player_hands.append(self.env.get_hole_cards_of_player(i))
+        self._player_hands = []
+        for i in range(self.env.N_SEATS):
+            self._player_hands.append(self.env.get_hole_cards_of_player(i))
         self._after_reset()
 
         # pass env_obs to the next wrapper to either return or further augment the observation

@@ -24,7 +24,7 @@ def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
     a list of starting stacks. Starting stacks begin with the BTN.
     """
     # get starting stacks, starting with button at index 0
-    starting_stack_sizes_list = [int(float(stack) * multiply_by) for stack in stack_sizes]
+    starting_stack_sizes_list = [round(float(stack) * multiply_by) for stack in stack_sizes]
 
     # make args for env
     args = NoLimitHoldem.ARGS_CLS(n_seats=len(stack_sizes),
