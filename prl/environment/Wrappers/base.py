@@ -91,12 +91,12 @@ class WrapperPokerRL(EnvWrapperBase):
     def int_action_to_tuple_action(self, a):
         if a == ActionSpace.FOLD:
             return (0, -1)
-        else:
+        elif a == ActionSpace.CHECK_CALL:
+            # check or call appropriate size (automatically via pot_size)
+            return (1, -1)  # when calling with pot_size, the env scales it down to the appropriate call size
+        elif ActionSpace.RAISE_MIN_OR_3BB <= a <= ActionSpace.ALL_IN:
             pot_size = self.env.get_all_winnable_money()
-            if a == ActionSpace.CHECK_CALL:
-                # check or call appropriate size (automatically via pot_size)
-                return (1, pot_size)  # when calling with pot_size, the env scales it down to the appropriate call size
-            elif a == ActionSpace.RAISE_MIN_OR_3BB:
+            if a == ActionSpace.RAISE_MIN_OR_3BB:
                 return (2, self.env._get_current_total_min_raise())
             elif a == ActionSpace.RAISE_HALF_POT:
                 return (2, int(pot_size / 2))  # residuals of division shouldnt cause problems

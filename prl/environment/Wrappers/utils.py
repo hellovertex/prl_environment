@@ -1,4 +1,4 @@
-from typing import TypeVar, Type, List
+from typing import TypeVar, Type, List, Union
 
 from prl.environment.Wrappers.base import EnvWrapperBase
 from prl.environment.steinberger.PokerRL import NoLimitHoldem
@@ -8,6 +8,7 @@ ENV_WRAPPER = TypeVar('ENV_WRAPPER', bound=EnvWrapperBase)
 
 def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
                      stack_sizes: List[float],
+                     blinds: List[Union[float, int]],  #  = [25, 50]
                      multiply_by=100) -> ENV_WRAPPER:  # Tuple[Wrapper, List[int]]:
     """
     Wraps a NoLimitHoldEm instance with a custom wrapper class.
@@ -28,11 +29,14 @@ def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
 
     # make args for env
     args = NoLimitHoldem.ARGS_CLS(n_seats=len(stack_sizes),
+                                  use_simplified_headsup_obs=False,
                                   starting_stack_sizes_list=starting_stack_sizes_list)
     # return wrapped env instance
     env = NoLimitHoldem(is_evaluating=True,
                         env_args=args,
                         lut_holder=NoLimitHoldem.get_lut_holder())
+    env.SMALL_BLIND = blinds[0]
+    env.BIG_BLIND = blinds[1]
     wrapped_env = env_wrapper_cls(env)
     return wrapped_env  # todo urgent replace:, starting_stack_sizes_list
 
