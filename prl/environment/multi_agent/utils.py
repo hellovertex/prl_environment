@@ -22,6 +22,7 @@ def make_multi_agent_env(env_config):
             # to set up ray remote workers
             self._n_players = env_config['n_players']
             self._starting_stack_size = env_config['starting_stack_size']
+            self._blinds = env_config['blinds']
             self._env_cls = env_config['env_wrapper_cls']
             self.env_wrapped = self._single_env()
             self._num_agents = self._n_players  # keep naming consistency with rllib
@@ -45,7 +46,9 @@ def make_multi_agent_env(env_config):
             MultiAgentEnv.__init__(self)
 
         def _single_env(self):
-            return init_wrapped_env(self._env_cls, [self._starting_stack_size for _ in range(self._n_players)])
+            return init_wrapped_env(self._env_cls,
+                                    stack_sizes=[self._starting_stack_size for _ in range(self._n_players)],
+                                    blinds=self._blinds)
 
         @override(MultiAgentEnv)
         def reset(self):
