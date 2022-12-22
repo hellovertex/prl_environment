@@ -5,7 +5,14 @@ The repository is used in my thesis related projects
  - `prl_reinforce` (actual reinforcement-learning repo)
  - `prl_api` (REST-ful API that connects `prl_frontend` gui with `prl_environment` and our rl-agents)
 ## Installation
-- run `pip install .` inside repo
+Clone with submodules:
+1. `git clone --recurse-submodules https://github.com/hellovertex/prl_environment.git`
+
+Install inside virtualenv:
+2. `cd prl_environment`
+3. `git submodule update --recursive --remote` (and `--init` if you did not clone using `--recurse-submodules`)
+4. `pip install -e .`  `# use -e optionally for development`
+
 ## Environment
 ###  Vectorized observation
 - A vectorized observation is encoded with a fixed length assuming 6 Players.
