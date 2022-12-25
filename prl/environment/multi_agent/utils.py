@@ -1,15 +1,15 @@
 import gym
 import numpy as np
-from gym.spaces import Box, Discrete, MultiBinary
+from gym.spaces import Box, Discrete, Tuple
 from ray.rllib import MultiAgentEnv
 from ray.rllib.env import EnvContext
 from ray.rllib.utils import override
 from ray.rllib.utils.typing import MultiAgentDict
-
+from typing import Type
 from prl.environment.Wrappers.utils import init_wrapped_env
 
 
-def make_multi_agent_env(env_config):
+def make_multi_agent_env(env_config) -> Type[MultiAgentEnv]:
     class _RLLibSteinbergerEnv(MultiAgentEnv):
         """Single Env holding multiple agents. Implements rllib.env.MultiAgentEnv to
         become vectorizable by rllib via `num_envs_per_worker` that can be increased via
@@ -38,7 +38,7 @@ def make_multi_agent_env(env_config):
                 if env_config['mask_legal_moves']:
                     self.observation_space = gym.spaces.Dict({
                         'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
-                        'legal_moves': MultiBinary(3)  # one-hot encoded [FOLD, CHECK_CALL, RAISE]
+                        'legal_moves': Tuple([Discrete(3), Discrete(3), Discrete(3)])  # one-hot encoded [FOLD, CHECK_CALL, RAISE]
                     })
 
             self._agent_ids = list(self.agents.keys())
