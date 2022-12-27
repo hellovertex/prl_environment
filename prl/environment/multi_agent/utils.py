@@ -38,7 +38,7 @@ def make_multi_agent_env(env_config) -> Type[MultiAgentEnv]:
                 if env_config['mask_legal_moves']:
                     self.observation_space = gym.spaces.Dict({
                         'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
-                        'legal_moves': Tuple([Discrete(3), Discrete(3), Discrete(3)])  # one-hot encoded [FOLD, CHECK_CALL, RAISE]
+                        'legal_moves': Box(low=0, high=1, shape=(3,), dtype=int) # one-hot encoded [FOLD, CHECK_CALL, RAISE]
                     })
 
             self._agent_ids = list(self.agents.keys())
