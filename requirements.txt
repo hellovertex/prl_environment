@@ -3,7 +3,7 @@ wheel
 gym~=0.23.1
 pycrayon==0.5
 psutil~=5.9.1
-torch~=1.11
+torch==1.13
 numpy~=1.22.0
 pydantic~=1.9.1
 ray~=2.1.0
