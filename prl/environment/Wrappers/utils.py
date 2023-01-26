@@ -9,7 +9,8 @@ ENV_WRAPPER = TypeVar('ENV_WRAPPER', bound=EnvWrapperBase)
 def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
                      stack_sizes: List[float],
                      blinds: List[Union[float, int]],  #  = [25, 50]
-                     multiply_by=100) -> ENV_WRAPPER:  # Tuple[Wrapper, List[int]]:
+                     multiply_by=100,
+                     scale_rewards=True) -> ENV_WRAPPER:  # Tuple[Wrapper, List[int]]:
     """
     Wraps a NoLimitHoldEm instance with a custom wrapper class.
     Returns the initialized (not reset yet!) environment, together with
@@ -29,6 +30,7 @@ def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
 
     # make args for env
     args = NoLimitHoldem.ARGS_CLS(n_seats=len(stack_sizes),
+                                  scale_rewards=scale_rewards,
                                   use_simplified_headsup_obs=False,
                                   starting_stack_sizes_list=starting_stack_sizes_list)
     # return wrapped env instance
