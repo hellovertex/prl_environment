@@ -67,7 +67,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
         self._next_player_who_gets_observation = None
         # experimental
         self._actions_per_stage_discretized = ActionHistory(max_players=6, max_actions_per_player_per_stage=2)
-
+        self.bet_sizes_std  
     # _______________________________ Overridden ________________________________
     def _before_step(self, action):
         """
@@ -100,11 +100,11 @@ class ActionHistoryWrapper(WrapperPokerRL):
             if action_formatted[0] == 2:  # action is raise
                 pot_size = self.env.get_all_winnable_money()
                 raise_amt = action_formatted[1]
-                if raise_amt < pot_size / 2:
+                if raise_amt < pot_size / 3:  # predict this as 3BB
                     return ActionSpace.RAISE_MIN_OR_3BB
-                elif raise_amt < pot_size:
+                elif raise_amt < pot_size / 2:  # predict this as half pot
                     return ActionSpace.RAISE_HALF_POT
-                elif raise_amt < 2 * pot_size:
+                elif raise_amt < 2 * pot_size:  # predict this as pot size bet
                     return ActionSpace.RAISE_POT
                 else:
                     return ActionSpace.ALL_IN
@@ -126,6 +126,6 @@ class ActionHistoryWrapper(WrapperPokerRL):
             self._rounds[in_which_stage]].append(action_discretized)
 
     # _______________________________ Override to Augment observation ________________________________
-    def get_current_obs(self, env_obs):
+    def get_current_obs(self, env_obs, *args, **kwargs):
         """Implement this to encode Action History into observation"""
         raise NotImplementedError
