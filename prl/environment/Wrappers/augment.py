@@ -62,7 +62,8 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
             env_obs: the observation returned by the base PokerEnv.
             The len(env_obs) is a function of the number of players.
         """
-        obs = self._vectorizer.vectorize(env_obs, self._next_player_who_gets_observation,
+        obs = self._vectorizer.vectorize(env_obs,
+                                         self._next_player_who_gets_observation,
                                          action_history=self._actions_per_stage,
                                          player_hands=self._player_hands,
                                          # player_hands=[self.env.get_hole_cards_of_player(i)

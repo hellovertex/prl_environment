@@ -335,6 +335,39 @@ class CanonicalVectorizer(Vectorizer):
         # copy from original observation without zero padding
         self._obs[self._start_board:self.offset] = bits
 
+    # IDX_C0_0 = 167  # feature_names.index('0th_player_card_0_rank_0')
+    # IDX_C0_1 = 184  # feature_names.index('0th_player_card_1_rank_0')
+    # IDX_C1_0 = 184  # feature_names.index('0th_player_card_1_rank_0')
+    # IDX_C1_1 = 201  # feature_names.index('1th_player_card_0_rank_0')
+    # IDX_BOARD_START = 82  #
+    # IDX_BOARD_END = 167  #
+    # CARD_BITS_TO_STR = np.array(['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', 'h', 'd', 's', 'c'])
+    # BOARD_BITS_TO_STR = np.array(['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
+    #                               'h', 'd', 's', 'c', '2', '3', '4', '5', '6', '7', '8', '9', 'T',
+    #                               'J', 'Q', 'K', 'A', 'h', 'd', 's', 'c', '2', '3', '4', '5', '6',
+    #                               '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', 'h', 'd', 's', 'c', '2',
+    #                               '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A', 'h',
+    #                               'd', 's', 'c', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J',
+    #                               'Q', 'K', 'A', 'h', 'd', 's', 'c'])
+    # RANK = 0
+    # SUITE = 1
+    # def card_bit_mask_to_int(self, c0: np.array, c1: np.array, board_mask: np.array) -> Tuple[List[int], List[int]]:
+    #     c0_1d = dict_str_to_sk[CARD_BITS_TO_STR[c0][RANK] + CARD_BITS_TO_STR[c0][SUITE]]
+    #     c1_1d = dict_str_to_sk[CARD_BITS_TO_STR[c1][RANK] + CARD_BITS_TO_STR[c1][SUITE]]
+    #     board = BOARD_BITS_TO_STR[board_mask.astype(bool)]
+    #     # board = array(['A', 'c', '2', 'h', '8', 'd'], dtype='<U1')
+    #     board_cards = []
+    #     for i in range(0, sum(board_mask) - 1, 2):  # sum is 6,8,10 for flop turn river resp.
+    #         board_cards.append(dict_str_to_sk[board[i] + board[i + 1]])
+    #
+    #     return [c0_1d, c1_1d], board_cards
+    #
+    # def look_at_cards(self, obs: np.array) -> Tuple[List[int], List[int]]:
+    #     c0_bits = obs[IDX_C0_0:IDX_C0_1].astype(bool)
+    #     c1_bits = obs[IDX_C1_0:IDX_C1_1].astype(bool)
+    #     board_bits = obs[IDX_BOARD_START:IDX_BOARD_END].astype(int)  # bit representation
+    #     return self.card_bit_mask_to_int(c0_bits, c1_bits, board_bits)
+
     def encode_player_hands(self, obs):
         """Example:"""
         # todo this returns zero if player hands have not been set by ditionary,
