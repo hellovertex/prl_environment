@@ -63,7 +63,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self._vectorizer.agent_observation_mode = mode
 
     # @override
-    def get_current_obs(self, env_obs, done):
+    def get_current_obs(self, env_obs):
         """
         Args:
             env_obs: the observation returned by the base PokerEnv.
@@ -76,7 +76,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                          # player_hands=[self.env.get_hole_cards_of_player(i)
                                          #               for i in range(self.num_players)],
                                          normalization=self.normalization,
-                                         done=done)
+                                         done=self.done)
         # self.print_augmented_obs(obs)
         return obs
 

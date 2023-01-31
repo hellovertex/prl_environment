@@ -87,6 +87,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
     def _before_reset(self, config=None):
         """Called before observation is computed by vectorizer"""
+        self.done = False # monkeypatch
         if config is not None and 'deck_state_dict' in config:
             if 'hand' in config['deck_state_dict']:
                 # key 'hand' is set, when text files are parsed to vectorized observations

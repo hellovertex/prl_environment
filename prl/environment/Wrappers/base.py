@@ -149,7 +149,7 @@ class WrapperPokerRL(EnvWrapperBase):
         return self.step(processed_action)
 
     def _return_obs(self, rew_for_all_players, done, info, env_obs=None):
-        return self.get_current_obs(env_obs=env_obs, done=done), rew_for_all_players, done, info
+        return self.get_current_obs(env_obs=env_obs), rew_for_all_players, done, info
 
     # _______________________________ Override to augment observation ________________________________
 
