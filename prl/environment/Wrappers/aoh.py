@@ -82,7 +82,8 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
     def _after_step(self, action):
         """Called before observation is computed by vectorizer"""
-        self._next_player_who_gets_observation = self.env.current_player.seat_id
+        if not self.done:
+            self._next_player_who_gets_observation = self.env.current_player.seat_id
 
     def _before_reset(self, config=None):
         """Called before observation is computed by vectorizer"""

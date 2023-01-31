@@ -396,10 +396,11 @@ class CanonicalVectorizer(Vectorizer):
         # print(f'NUM_PLAYERS INSIDE VEC = {self.num_players}')
         for n_card, card in enumerate(rolled_cards):
             offset = card_bits * n_card
-            # set rank
-            hand_bits[card[0] + offset] = 1
-            # set suit
-            hand_bits[card[1] + offset + self.n_ranks] = 1
+            # set rank for visible cards:
+            if card[0] != Poker.CARD_NOT_DEALT_TOKEN_1D:
+                hand_bits[card[0] + offset] = 1
+                # set suit
+                hand_bits[card[1] + offset + self.n_ranks] = 1
         # zero padding
         # hand_bits = np.pad(hand_bits, (0,  - len(hand_bits)), 'constant')
         # hand_bits = np.resize(hand_bits, self._bits_player_hands)

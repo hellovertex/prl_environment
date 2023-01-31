@@ -78,7 +78,7 @@ class WrapperPokerRL(EnvWrapperBase):
 
         # reset env
         env_obs, rew_for_all_players, done, info = self.env.reset(deck_state_dict=deck_state_dict)
-
+        self.done = done
         # Convenient access to hand cards of each player
         self._player_hands = []
         for i in range(self.env.N_SEATS):
@@ -119,7 +119,7 @@ class WrapperPokerRL(EnvWrapperBase):
         self._before_step(action)
         # step environment
         env_obs, rew_for_all_players, done, info = self.env.step(action)
-
+        self.done = done  # monkey patch, so that next player who gets observation is not updated at the end of ep
         self._after_step(action)
         # call get_current_obs of derived class
         return self._return_obs(env_obs=env_obs,
