@@ -49,6 +49,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                btn_pos=self.env.BTN_POS)
         self._vectorizer.agent_observation_mode = agent_observation_mode
 
+    def get_legal_moves_extended(self):
+        legal_moves = np.array([0, 0, 0, 0, 0, 0])
+        legal_moves[self.env.get_legal_actions()] += 1
+        if legal_moves[2] == 1:
+            legal_moves[[3, 4, 5]] = 1
+        return legal_moves
+
     def agent_observation_mode(self):
         return self._vectorizer.agent_observation_mode
 

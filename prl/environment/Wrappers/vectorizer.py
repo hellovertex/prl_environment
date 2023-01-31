@@ -380,7 +380,8 @@ class CanonicalVectorizer(Vectorizer):
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ -127  -127], [ -127  -127]]
         # replace NAN with 0
         # todo: if not SEER mode, set rolled_cards[2:] indices to zero
-        rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
+        # the following line introduces a bug:  -- keep for reference, do NOT uncomment
+        # rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
         # if not self._agent_observation_type == AgentObservationType.SEER:
         if not self.done:
             # ignore all other players cards -> the agent should not see these
