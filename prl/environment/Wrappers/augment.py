@@ -10,14 +10,15 @@ from prl.environment.Wrappers.base import ActionSpace
 from prl.environment.Wrappers.utils import init_wrapped_env
 from prl.environment.Wrappers.vectorizer import CanonicalVectorizer, AgentObservationType
 from prl.environment.steinberger.PokerRL.game.Poker import Poker
-
+from gym.spaces import Box
 
 # noinspection DuplicatedCode
 class AugmentObservationWrapper(ActionHistoryWrapper):
     """Runs our custom vectorizer after computing the observation from the steinberger env"""
 
-    def __init__(self, env):
+    def __init__(self, env, disable_info=False):
         super().__init__(env=env)
+        self.disable_info = disable_info
         # todo: (?) check how obs is normalized to avoid small floats
         self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
@@ -25,7 +26,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self.num_players = env.N_SEATS
         self.max_players = 6
         self.num_board_cards = 5
-        self.observation_space, self.obs_idx_dict, self.obs_parts_idxs_dict = self._construct_obs_space()
+        _, self.obs_idx_dict, self.obs_parts_idxs_dict = self._construct_obs_space()
+        obs_space = Box(low=0.0, high=6.0, shape=(564,), dtype=np.float64)
+        self.observation_space = gym.spaces.Dict({
+            'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
+            'action_mask': Box(low=0, high=1, shape=(3,), dtype=int)
+            # one-hot encoded [FOLD, CHECK_CALL, RAISE]
+        })
         self.action_space = gym.spaces.Discrete(ActionSpace.__len__())
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,

@@ -86,7 +86,7 @@ class WrapperPokerRL(EnvWrapperBase):
         self._after_reset()
 
         # pass env_obs to the next wrapper to either return or further augment the observation
-        return self._return_obs(env_obs=env_obs, rew_for_all_players=rew_for_all_players, done=done, info=info)
+        return self._return_obs(env_obs=env_obs, rew_for_all_players=None, done=None, info=None)
 
     def int_action_to_tuple_action(self, a):
         if a == ActionSpace.FOLD:
@@ -122,6 +122,8 @@ class WrapperPokerRL(EnvWrapperBase):
         self.done = done  # monkey patch, so that next player who gets observation is not updated at the end of ep
         self._after_step(action)
         # call get_current_obs of derived class
+        if self.disable_info:
+            info = {}
         return self._return_obs(env_obs=env_obs,
                                 rew_for_all_players=rew_for_all_players,
                                 done=done,
@@ -149,7 +151,13 @@ class WrapperPokerRL(EnvWrapperBase):
         return self.step(processed_action)
 
     def _return_obs(self, rew_for_all_players, done, info, env_obs=None):
+<<<<<<< Updated upstream
         return self.get_current_obs(env_obs, rew_for_all_players, done, info)
+=======
+        if rew_for_all_players is None and done is None and info is None:
+            return self.get_current_obs(env_obs=env_obs)
+        return self.get_current_obs(env_obs=env_obs), rew_for_all_players, done, info
+>>>>>>> Stashed changes
 
     # _______________________________ Override to augment observation ________________________________
 
