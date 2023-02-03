@@ -38,9 +38,9 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
-
-    def seed(self, seed: Optional[int] = None) -> None:
-        np.random.seed(seed)
+    #
+    # def seed(self, seed: Optional[int] = None) -> None:
+    #     np.random.seed(seed)
 
     def overwrite_args(self, args, agent_observation_mode=None, n_players=None):
         if n_players:

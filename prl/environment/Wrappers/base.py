@@ -103,7 +103,7 @@ class WrapperPokerRL(EnvWrapperBase):
             elif a == ActionSpace.RAISE_POT:
                 return (2, pot_size)
             elif a == ActionSpace.ALL_IN:
-                return (2, self.env.current_player.stack)
+                return (2, self.env.current_player.current_bet + self.env.current_player.stack)
         return a
 
     def step(self, action):
