@@ -32,6 +32,9 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
 
+    def seed(self, seed: Optional[int] = None) -> None:
+        np.random.seed(seed)
+
     def overwrite_args(self, args, agent_observation_mode=None, n_players=None):
         if n_players:
             self.num_players = n_players
@@ -63,7 +66,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self._vectorizer.agent_observation_mode = mode
 
     # @override
-    def get_current_obs(self, env_obs):
+    def get_current_obs(self, env_obs, rewards, done, info):
         """
         Args:
             env_obs: the observation returned by the base PokerEnv.
@@ -78,7 +81,9 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                          normalization=self.normalization,
                                          done=self.done)
         # self.print_augmented_obs(obs)
-        return obs
+        btn_idx = obs[AugmentedObservationFeatureColumns.Btn_idx]
+        rewards = np.roll(rewards, btn_idx)
+        return obs, rewards, done, info
 
     def get_legal_actions(self):
         return self.env.get_legal_actions()
