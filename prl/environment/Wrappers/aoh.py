@@ -75,6 +75,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
     def _before_step(self, action):
         """
         """
+        self.last_player_who_acted = self.env.current_player.seat_id
         # store action in history buffer
         self._pushback_action(action,
                               player_who_acted=self.env.current_player.seat_id,

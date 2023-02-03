@@ -73,7 +73,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self._vectorizer.agent_observation_mode = mode
 
     # @override
-    def get_current_obs(self, env_obs, rewards, done, info):
+    def get_current_obs(self, env_obs):
         """
         Args:
             env_obs: the observation returned by the base PokerEnv.
@@ -87,13 +87,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                          #               for i in range(self.num_players)],
                                          normalization=self.normalization,
                                          done=self.done)
-        if rewards is None and done is None and info is None:
-            # in case of reset we only need obs
-            return obs
-        # self.print_augmented_obs(obs)
-        btn_idx = obs[AugmentedObservationFeatureColumns.Btn_idx]
-        rewards = np.roll(rewards, int(btn_idx))
-        return obs, rewards[0], done, info
+        return obs
 
     def get_legal_actions(self):
         return self.env.get_legal_actions()
