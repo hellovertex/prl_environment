@@ -151,13 +151,7 @@ class WrapperPokerRL(EnvWrapperBase):
         return self.step(processed_action)
 
     def _return_obs(self, rew_for_all_players, done, info, env_obs=None):
-<<<<<<< Updated upstream
         return self.get_current_obs(env_obs, rew_for_all_players, done, info)
-=======
-        if rew_for_all_players is None and done is None and info is None:
-            return self.get_current_obs(env_obs=env_obs)
-        return self.get_current_obs(env_obs=env_obs), rew_for_all_players, done, info
->>>>>>> Stashed changes
 
     # _______________________________ Override to augment observation ________________________________
 

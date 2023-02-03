@@ -1,5 +1,5 @@
 import enum
-
+from typing import Optional
 import gym
 import numpy as np
 from gym import spaces
@@ -87,10 +87,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                          #               for i in range(self.num_players)],
                                          normalization=self.normalization,
                                          done=self.done)
+        if rewards is None and done is None and info is None:
+            # in case of reset we only need obs
+            return obs
         # self.print_augmented_obs(obs)
         btn_idx = obs[AugmentedObservationFeatureColumns.Btn_idx]
-        rewards = np.roll(rewards, btn_idx)
-        return obs, rewards, done, info
+        rewards = np.roll(rewards, int(btn_idx))
+        return obs, rewards[0], done, info
 
     def get_legal_actions(self):
         return self.env.get_legal_actions()
