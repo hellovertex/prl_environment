@@ -133,7 +133,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
                     return ActionSpace.RAISE_MIN_OR_3BB
                 elif raise_amt < pot_size:  # eval using pseudo harmonic mapping with A = 1/2 pot, B = 1 Pot
                     return ActionSpace.RAISE_HALF_POT
-                elif raise_amt < 2 * pot_size:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                elif raise_amt <= 3 * pot_size:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
                     return ActionSpace.RAISE_POT
                 else:
                     return ActionSpace.ALL_IN  # eval using pseudo harmonic mapping with A = 2 pot, B = donk
