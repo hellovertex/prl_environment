@@ -88,6 +88,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
     def _before_reset(self, config=None):
         """Called before observation is computed by vectorizer"""
+        self._actions_per_stage = ActionHistory(max_players=6, max_actions_per_player_per_stage=2)
         self._actions_per_stage_discretized = ActionHistory(max_players=6, max_actions_per_player_per_stage=2)
         self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
                                        ActionSpace.RAISE_HALF_POT: {},
@@ -101,8 +102,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
         self.player_hands = []
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,
-                                               # btn pos used to return obs relative to self
-                                               btn_pos=self.env.BTN_POS)
+                                               btn_pos=0)
         self.done = False # monkeypatch
         if config is not None and 'deck_state_dict' in config:
             if 'hand' in config['deck_state_dict']:
