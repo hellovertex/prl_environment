@@ -98,7 +98,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
                                        ActionSpace.RAISE_HALF_POT: {},
                                        ActionSpace.RAISE_POT: {},
                                        ActionSpace.ALL_IN: {}}
-        self._next_player_who_gets_observation = None
+        self._next_player_who_gets_observation = 0 if self.num_players < 4 else 3
         self.player_hands = []
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,
