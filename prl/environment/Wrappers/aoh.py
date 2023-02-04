@@ -4,7 +4,7 @@ from collections import defaultdict, deque
 import numpy as np
 
 from prl.environment.Wrappers.base import WrapperPokerRL, ActionSpace
-
+from prl.environment.Wrappers.vectorizer import CanonicalVectorizer, AgentObservationType
 
 class Positions6Max(enum.IntEnum):
     """Positions as in the literature, for a table with at most 6 Players.
