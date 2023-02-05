@@ -8,14 +8,14 @@ class ActionSpace(enum.IntEnum):
     FOLD = 0
     CHECK_CALL = 1
     RAISE_MIN_OR_3BB = 2
-    # RAISE_6_BB = 3
-    # RAISE_10_BB = 4
-    # RAISE_20_BB = 5
-    # RAISE_50_BB = 5
-    # RAISE_ALL_IN = 6
-    RAISE_HALF_POT = 3
-    RAISE_POT = 4
-    ALL_IN = 5
+    RAISE_6_BB = 3
+    RAISE_10_BB = 4
+    RAISE_20_BB = 5
+    RAISE_50_BB = 5
+    RAISE_ALL_IN = 6
+    # RAISE_HALF_POT = 3
+    # RAISE_POT = 4
+    # ALL_IN = 5
 
 
 class EnvWrapperBase:
@@ -100,15 +100,21 @@ class WrapperPokerRL(EnvWrapperBase):
             # check or call appropriate size (automatically via pot_size)
             return (1, -1)  # when calling with pot_size, the env scales it down to the appropriate call size
         elif ActionSpace.RAISE_MIN_OR_3BB <= a <= ActionSpace.ALL_IN:
-            pot_size = self.env.get_all_winnable_money()
+            BB = self.env.BIG_BLIND
+            min_raise = self.env._get_current_total_min_raise()
+            all_in_amt = self.env.current_player.current_bet + self.env.current_player.stack
             if a == ActionSpace.RAISE_MIN_OR_3BB:
-                return (2, self.env._get_current_total_min_raise())
-            elif a == ActionSpace.RAISE_HALF_POT:
-                return (2, int(pot_size / 2))  # residuals of division shouldnt cause problems
-            elif a == ActionSpace.RAISE_POT:
-                return (2, pot_size)
+                return (2, max(3*BB,min_raise))
+            elif a == ActionSpace.RAISE_6_BB:
+                return (2, max(6*BB, min_raise))  # residuals of division shouldnt cause problems
+            elif a == ActionSpace.RAISE_10_BB:
+                return (2, max(10*BB, min_raise))
+            elif a == ActionSpace.RAISE_20_BB:
+                return (2, max(20 * BB, min_raise))  # residuals of division shouldnt cause problems
+            elif a == ActionSpace.RAISE_50_BB:
+                return (2, max(50 * BB, min_raise))  # residuals of division shouldnt cause problems
             elif a == ActionSpace.ALL_IN:
-                return (2, self.env.current_player.current_bet + self.env.current_player.stack)
+                return (2, all_in_amt)
         return a
 
     def step(self, action):

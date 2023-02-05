@@ -67,10 +67,10 @@ class ActionHistoryWrapper(WrapperPokerRL):
         self._next_player_who_gets_observation = None
         # experimental
         self._actions_per_stage_discretized = ActionHistory(max_players=6, max_actions_per_player_per_stage=2)
-        self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
-                                       ActionSpace.RAISE_HALF_POT: {},
-                                       ActionSpace.RAISE_POT: {},
-                                       ActionSpace.ALL_IN: {}}
+        # self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
+        #                                ActionSpace.RAISE_HALF_POT: {},
+        #                                ActionSpace.RAISE_POT: {},
+        #                                ActionSpace.ALL_IN: {}}
     # _______________________________ Overridden ________________________________
     def _before_step(self, action):
         """
@@ -90,14 +90,14 @@ class ActionHistoryWrapper(WrapperPokerRL):
         """Called before observation is computed by vectorizer"""
         self._actions_per_stage = ActionHistory(max_players=6, max_actions_per_player_per_stage=2)
         self._actions_per_stage_discretized = ActionHistory(max_players=6, max_actions_per_player_per_stage=2)
-        self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
-                                       ActionSpace.RAISE_HALF_POT: {},
-                                       ActionSpace.RAISE_POT: {},
-                                       ActionSpace.ALL_IN: {}}
-        self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
-                                       ActionSpace.RAISE_HALF_POT: {},
-                                       ActionSpace.RAISE_POT: {},
-                                       ActionSpace.ALL_IN: {}}
+        # self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
+        #                                ActionSpace.RAISE_HALF_POT: {},
+        #                                ActionSpace.RAISE_POT: {},
+        #                                ActionSpace.ALL_IN: {}}
+        # self.stats_bet_size_buckets = {ActionSpace.RAISE_MIN_OR_3BB: {},
+        #                                ActionSpace.RAISE_HALF_POT: {},
+        #                                ActionSpace.RAISE_POT: {},
+        #                                ActionSpace.ALL_IN: {}}
         self._next_player_who_gets_observation = 0 if self.num_players < 4 else 3
         self.player_hands = []
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
@@ -129,12 +129,17 @@ class ActionHistoryWrapper(WrapperPokerRL):
             if action_formatted[0] == 2:  # action is raise
                 pot_size = self.env.get_all_winnable_money()
                 raise_amt = action_formatted[1]
-                if raise_amt < pot_size / 2:  # eval using pseudo harmonic mapping with A = 3BB, B = 1/2 Pot
+                BB = self.env.BIG_BLIND
+                if raise_amt <= 3*BB:  # eval using pseudo harmonic mapping with A = 3BB, B = 1/2 Pot
                     return ActionSpace.RAISE_MIN_OR_3BB
-                elif raise_amt < pot_size:  # eval using pseudo harmonic mapping with A = 1/2 pot, B = 1 Pot
-                    return ActionSpace.RAISE_HALF_POT
-                elif raise_amt <= 3 * pot_size:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
-                    return ActionSpace.RAISE_POT
+                elif raise_amt <= 6*BB:  # eval using pseudo harmonic mapping with A = 1/2 pot, B = 1 Pot
+                    return ActionSpace.RAISE_6_BB
+                elif raise_amt <= 10 * BB:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                    return ActionSpace.RAISE_10_BB
+                elif raise_amt <= 20 * BB:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                    return ActionSpace.RAISE_20_BB
+                elif raise_amt <= 50 * BB:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                    return ActionSpace.RAISE_50_BB
                 else:
                     return ActionSpace.ALL_IN  # eval using pseudo harmonic mapping with A = 2 pot, B = donk
             else:  # action is fold or check/call
