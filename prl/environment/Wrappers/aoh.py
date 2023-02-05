@@ -141,7 +141,7 @@ class ActionHistoryWrapper(WrapperPokerRL):
                 elif raise_amt <= 50 * BB:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
                     return ActionSpace.RAISE_50_BB
                 else:
-                    return ActionSpace.ALL_IN  # eval using pseudo harmonic mapping with A = 2 pot, B = donk
+                    return ActionSpace.RAISE_ALL_IN  # eval using pseudo harmonic mapping with A = 2 pot, B = donk
             else:  # action is fold or check/call
                 return ActionSpace(action_formatted[0])
         except Exception as e:
