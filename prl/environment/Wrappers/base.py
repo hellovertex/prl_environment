@@ -8,6 +8,11 @@ class ActionSpace(enum.IntEnum):
     FOLD = 0
     CHECK_CALL = 1
     RAISE_MIN_OR_3BB = 2
+    # RAISE_6_BB = 3
+    # RAISE_10_BB = 4
+    # RAISE_20_BB = 5
+    # RAISE_50_BB = 5
+    # RAISE_ALL_IN = 6
     RAISE_HALF_POT = 3
     RAISE_POT = 4
     ALL_IN = 5
