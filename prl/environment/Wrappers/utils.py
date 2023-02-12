@@ -1,4 +1,4 @@
-from typing import TypeVar, Type, List, Union
+from typing import TypeVar, Tuple, Type, List, Union
 
 from prl.environment.Wrappers.base import EnvWrapperBase
 from prl.environment.steinberger.PokerRL import NoLimitHoldem
@@ -8,7 +8,7 @@ ENV_WRAPPER = TypeVar('ENV_WRAPPER', bound=EnvWrapperBase)
 
 def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
                      stack_sizes: List[float],
-                     blinds: List[Union[float, int]]=[50,100],  #  = [25, 50]
+                     blinds: Tuple[int, int]=(25,50),  #  = [25, 50]
                      multiply_by=100,
                      scale_rewards=True,
                      disable_info=False) -> ENV_WRAPPER:  # Tuple[Wrapper, List[int]]:
