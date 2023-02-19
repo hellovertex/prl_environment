@@ -130,6 +130,32 @@ class ActionHistoryWrapper(WrapperPokerRL):
                 pot_size = self.env.get_all_winnable_money()
                 raise_amt = action_formatted[1]
                 BB = self.env.BIG_BLIND
+                if raise_amt <= pot_size/3:  # eval using pseudo harmonic mapping with A = 3BB, B = 1/2 Pot
+                    return ActionSpace.RAISE_MIN_OR_THIRD_OF_POT
+                elif raise_amt <= 2*pot_size/3:  # eval using pseudo harmonic mapping with A = 1/2 pot, B = 1 Pot
+                    return ActionSpace.RAISE_TWO_THIRDS_OF_POT
+                elif raise_amt <= pot_size:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                    return ActionSpace.RAISE_POT
+                elif raise_amt <= 2 * pot_size:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                    return ActionSpace.RAISE_2x_POT
+                elif raise_amt <= 3 * pot_size:  # eval using pseudo harmonic mapping with A = 1 pot, B = 2 Pot
+                    return ActionSpace.RAISE_3x_POT
+                else:
+                    return ActionSpace.RAISE_ALL_IN  # eval using pseudo harmonic mapping with A = 2 pot, B = donk
+            else:  # action is fold or check/call
+                return ActionSpace(action_formatted[0])
+        except Exception as e:
+            print(f"ACTION TYPE = {type(action_formatted)}")
+            raise e
+
+    def discretize_old_keep_for_reference(self, action_formatted):
+        try:
+            if isinstance(action_formatted, int) or isinstance(action_formatted, np.integer):
+                return ActionSpace(action_formatted)
+            if action_formatted[0] == 2:  # action is raise
+                pot_size = self.env.get_all_winnable_money()
+                raise_amt = action_formatted[1]
+                BB = self.env.BIG_BLIND
                 if raise_amt <= 3*BB:  # eval using pseudo harmonic mapping with A = 3BB, B = 1/2 Pot
                     return ActionSpace.RAISE_MIN_OR_3BB
                 elif raise_amt <= 6*BB:  # eval using pseudo harmonic mapping with A = 1/2 pot, B = 1 Pot

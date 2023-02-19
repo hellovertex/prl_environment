@@ -7,6 +7,19 @@ class ActionSpace(enum.IntEnum):
     """Under Construction"""
     FOLD = 0
     CHECK_CALL = 1
+    RAISE_MIN_OR_THIRD_OF_POT = 2
+    RAISE_TWO_THIRDS_OF_POT = 3
+    RAISE_POT = 4
+    RAISE_2x_POT = 5
+    RAISE_3x_POT = 6
+    RAISE_ALL_IN = 7
+    # RAISE_HALF_POT = 3
+    # RAISE_POT = 4
+    # ALL_IN = 5
+
+class ActionSpaceOldKeepForReference(enum.IntEnum):
+    FOLD = 0
+    CHECK_CALL = 1
     RAISE_MIN_OR_3BB = 2
     RAISE_6_BB = 3
     RAISE_10_BB = 4
@@ -16,7 +29,6 @@ class ActionSpace(enum.IntEnum):
     # RAISE_HALF_POT = 3
     # RAISE_POT = 4
     # ALL_IN = 5
-
 
 class EnvWrapperBase:
 
@@ -94,6 +106,31 @@ class WrapperPokerRL(EnvWrapperBase):
         return self._return_obs(env_obs=env_obs, rew_for_all_players=rew_for_all_players, done=done, info=info)
 
     def int_action_to_tuple_action(self, a):
+        if a == ActionSpace.FOLD:
+            return (0, -1)
+        elif a == ActionSpace.CHECK_CALL:
+            # check or call appropriate size (automatically via pot_size)
+            return (1, -1)  # when calling with pot_size, the env scales it down to the appropriate call size
+        elif ActionSpace.RAISE_MIN_OR_3BB <= a <= ActionSpace.RAISE_ALL_IN:
+            BB = self.env.BIG_BLIND
+            min_raise = self.env._get_current_total_min_raise()
+            all_in_amt = self.env.current_player.current_bet + self.env.current_player.stack
+            pot_size = self.env.get_all_winnable_money()
+            if a == ActionSpace.RAISE_MIN_OR_THIRD_OF_POT:
+                return (2, max(min_raise, pot_size/3))
+            elif a == ActionSpace.RAISE_TWO_THIRDS_OF_POT:
+                return (2, max(min_raise, 2*pot_size/3))  # residuals of division shouldnt cause problems
+            elif a == ActionSpace.RAISE_POT:
+                return (2, max(min_raise, pot_size))
+            elif a == ActionSpace.RAISE_2x_POT:
+                return (2, max(min_raise, 2*pot_size))  # residuals of division shouldnt cause problems
+            elif a == ActionSpace.RAISE_3x_POT:
+                return (2, max(min_raise, 3*pot_size))  # residuals of division shouldnt cause problems
+            elif a == ActionSpace.RAISE_ALL_IN:
+                return (2, all_in_amt)
+        return a
+
+    def int_action_to_tuple_action_old_keep_for_reference(self, a):
         if a == ActionSpace.FOLD:
             return (0, -1)
         elif a == ActionSpace.CHECK_CALL:
