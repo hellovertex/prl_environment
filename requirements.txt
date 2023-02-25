@@ -9,4 +9,4 @@ pydantic~=1.9.1
 ray~=2.1.0
 scipy~=1.8.1
 setuptools~=44.0.0
-tianshou==0.4.10
+
