@@ -1,6 +1,6 @@
 requests
 wheel
-gym~=0.23.1
+gym==0.21
 pycrayon==0.5
 psutil~=5.9.1
 torch==1.13
