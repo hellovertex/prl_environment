@@ -465,4 +465,7 @@ class CanonicalVectorizer(Vectorizer):
         # [1,2,3,4,5,0] -> btn_idx = 5
         assert self.offset == self._obs_len
         # append offset to button at the end as a hotfix
-        return np.concatenate([self._obs, [self._next_player_who_gets_observation]])
+        btn_one_hot_encoded = [0,0,0,0,0,0]
+        btn_one_hot_encoded[self._next_player_who_gets_observation] = 1
+        # return np.concatenate([self._obs, [self._next_player_who_gets_observation]])
+        return np.concatenate([self._obs, btn_one_hot_encoded])

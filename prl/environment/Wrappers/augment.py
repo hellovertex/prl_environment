@@ -27,7 +27,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self.max_players = 6
         self.num_board_cards = 5
         _, self.obs_idx_dict, self.obs_parts_idxs_dict = self._construct_obs_space()
-        obs_space = Box(low=0.0, high=6.0, shape=(564,), dtype=np.float64)
+        obs_space = Box(low=0.0, high=6.0, shape=(569,), dtype=np.float64)
         self.observation_space = gym.spaces.Dict({
             'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
             'action_mask': Box(low=0, high=1, shape=(3,), dtype=int)
@@ -1388,7 +1388,12 @@ class AugmentedObservationFeatureColumns(enum.IntEnum):
     River_player_5_action_1_what_0 = 560
     River_player_5_action_1_what_1 = 561
     River_player_5_action_1_what_2 = 562
-    Btn_idx = 563
+    Btn_idx_is_0 = 563
+    Btn_idx_is_1 = 564
+    Btn_idx_is_2 = 565
+    Btn_idx_is_3 = 566
+    Btn_idx_is_4 = 567
+    Btn_idx_is_5 = 568
 
 
 def make_enum__AugmentedObservationFeatureColumns():
