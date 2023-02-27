@@ -111,7 +111,7 @@ class WrapperPokerRL(EnvWrapperBase):
         elif a == ActionSpace.CHECK_CALL:
             # check or call appropriate size (automatically via pot_size)
             return (1, -1)  # when calling with pot_size, the env scales it down to the appropriate call size
-        elif ActionSpace.RAISE_MIN_OR_3BB <= a <= ActionSpace.RAISE_ALL_IN:
+        elif ActionSpace.RAISE_MIN_OR_THIRD_OF_POT <= a <= ActionSpace.RAISE_ALL_IN:
             BB = self.env.BIG_BLIND
             min_raise = self.env._get_current_total_min_raise()
             all_in_amt = self.env.current_player.current_bet + self.env.current_player.stack
