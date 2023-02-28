@@ -17,6 +17,13 @@ class ActionSpace(enum.IntEnum):
     # RAISE_POT = 4
     # ALL_IN = 5
 
+
+class ActionSpaceMinimal(enum.IntEnum):
+    FOLD = 0
+    CHECK_CALL = 1
+    RAISE = 2
+
+
 class ActionSpaceOldKeepForReference(enum.IntEnum):
     FOLD = 0
     CHECK_CALL = 1
