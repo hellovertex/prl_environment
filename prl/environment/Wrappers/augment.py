@@ -238,7 +238,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                           _action_history_space +
                                           [spaces.Discrete(1)]  # for btn_index which we added manually later
                                           )
-        obs_idx_dict["btn_idx"] = len(list(obs_idx_dict.keys()))
+        # obs_idx_dict["btn_idx"] = len(list(obs_idx_dict.keys()))
+        obs_idx_dict["Btn_idx_is_0"] = 563
+        obs_idx_dict["Btn_idx_is_1"] = 564 
+        obs_idx_dict["Btn_idx_is_2"] = 565 
+        obs_idx_dict["Btn_idx_is_3"] = 566 
+        obs_idx_dict["Btn_idx_is_4"] = 567 
+        obs_idx_dict["Btn_idx_is_5"] = 568
         try:
             _observation_space.shape = [len(_observation_space.spaces)]
         except AttributeError:
