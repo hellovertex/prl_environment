@@ -12,6 +12,7 @@ from prl.environment.Wrappers.vectorizer import CanonicalVectorizer, AgentObserv
 from prl.environment.steinberger.PokerRL.game.Poker import Poker
 from gym.spaces import Box
 
+
 # noinspection DuplicatedCode
 class AugmentObservationWrapper(ActionHistoryWrapper):
     """Runs our custom vectorizer after computing the observation from the steinberger env"""
@@ -29,7 +30,8 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         _, self.obs_idx_dict, self.obs_parts_idxs_dict = self._construct_obs_space()
         obs_space = Box(low=0.0, high=6.0, shape=(569,), dtype=np.float64)
         self.observation_space = gym.spaces.Dict({
-            'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
+            'obs': obs_space,
+            # do not change key-name 'obs' it is internally used by rllib (!)
             'action_mask': Box(low=0, high=1, shape=(3,), dtype=int)
             # one-hot encoded [FOLD, CHECK_CALL, RAISE]
         })
@@ -38,6 +40,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS)
+
     #
     # def seed(self, seed: Optional[int] = None) -> None:
     #     np.random.seed(seed)
@@ -126,13 +129,20 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
 
         # __________________________  Public Information About Game State  _________________________
         _k = next_idx[0]
-        _table_space = [  # (blinds are in obs to give the agent a perspective on starting stack after normalization
-            get_new_box("ante", next_idx, self.max_players),  # .................................... self.ANTE
-            get_new_box("small_blind", next_idx, self.max_players),  # ............................. self.SMALL_BLIND
-            get_new_box("big_blind", next_idx, self.max_players),  # ............................... self.BIG_BLIND
-            get_new_box("min_raise", next_idx, self.max_players),  # ............................... min total raise
-            get_new_box("pot_amt", next_idx, self.max_players),  # ................................. main_pot amount
-            get_new_box("total_to_call", next_idx, self.max_players),  # ........................... total_to_call
+        _table_space = [
+            # (blinds are in obs to give the agent a perspective on starting stack after normalization
+            get_new_box("ante", next_idx, self.max_players),
+            # .................................... self.ANTE
+            get_new_box("small_blind", next_idx, self.max_players),
+            # ............................. self.SMALL_BLIND
+            get_new_box("big_blind", next_idx, self.max_players),
+            # ............................... self.BIG_BLIND
+            get_new_box("min_raise", next_idx, self.max_players),
+            # ............................... min total raise
+            get_new_box("pot_amt", next_idx, self.max_players),
+            # ................................. main_pot amount
+            get_new_box("total_to_call", next_idx, self.max_players),
+            # ........................... total_to_call
             # get_new_box("last_action_how_much", next_idx, self.max_players),  # .................... self.last_action[1]
         ]
         # for i in range(3):  # .................................................................. self.last_action[0]
@@ -141,13 +151,17 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         # for i in range(self.max_players):  # ....................................................... self.last_action[2]
         #   _table_space.append(get_discrete(1, "last_action_who_" + str(i), next_idx))
 
-        for i in range(self.max_players):  # ....................................................... curr_player.seat_id
+        for i in range(
+                self.max_players):  # ....................................................... curr_player.seat_id
             _table_space.append(get_discrete(1, "p" + str(i) + "_acts_next", next_idx))
 
-        for i in range(len(self._rounds)):  # ...................................... round onehot
-            _table_space.append(get_discrete(1, "round_" + Poker.INT2STRING_ROUND[i], next_idx)),
+        for i in range(
+                len(self._rounds)):  # ...................................... round onehot
+            _table_space.append(
+                get_discrete(1, "round_" + Poker.INT2STRING_ROUND[i], next_idx)),
 
-        for i in range(self.max_players):  # ....................................................... side pots
+        for i in range(
+                self.max_players):  # ....................................................... side pots
             _table_space.append(get_new_box("side_pot_" + str(i), next_idx, 1))
 
         # add to parts_dict for possible slicing for agents.
@@ -158,14 +172,19 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         for i in range(self.max_players):
             _k = next_idx[0]
             _player_space += [
-                get_new_box("stack_p" + str(i), next_idx, self.max_players),  # ..................... stack
-                get_new_box("curr_bet_p" + str(i), next_idx, self.max_players),  # .................. current_bet
-                get_discrete(1, "has_folded_this_episode_p" + str(i), next_idx),  # ............. folded_this_epis
-                get_discrete(1, "is_allin_p" + str(i), next_idx),  # ............................ is_allin
+                get_new_box("stack_p" + str(i), next_idx, self.max_players),
+                # ..................... stack
+                get_new_box("curr_bet_p" + str(i), next_idx, self.max_players),
+                # .................. current_bet
+                get_discrete(1, "has_folded_this_episode_p" + str(i), next_idx),
+                # ............. folded_this_epis
+                get_discrete(1, "is_allin_p" + str(i), next_idx),
+                # ............................ is_allin
             ]
             for j in range(self.max_players):
                 _player_space.append(
-                    get_discrete(1, "side_pot_rank_p" + str(i) + "_is_" + str(j), next_idx))  # . side_pot_rank
+                    get_discrete(1, "side_pot_rank_p" + str(i) + "_is_" + str(j),
+                                 next_idx))  # . side_pot_rank
 
             # add to parts_dict for possible slicing for agents
             obs_parts_idxs_dict["players"][i] += list(range(_k, next_idx[0]))
@@ -176,11 +195,15 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         for i in range(self.num_board_cards):
 
             x = []
-            for j in range(self.env.N_RANKS):  # .................................................... rank
-                x.append(get_discrete(1, str(i) + "th_board_card_rank_" + str(j), next_idx))
+            for j in range(
+                    self.env.N_RANKS):  # .................................................... rank
+                x.append(
+                    get_discrete(1, str(i) + "th_board_card_rank_" + str(j), next_idx))
 
-            for j in range(self.env.N_SUITS):  # .................................................... suit
-                x.append(get_discrete(1, str(i) + "th_board_card_suit_" + str(j), next_idx))
+            for j in range(
+                    self.env.N_SUITS):  # .................................................... suit
+                x.append(
+                    get_discrete(1, str(i) + "th_board_card_suit_" + str(j), next_idx))
 
             _board_space += x
 
@@ -195,11 +218,17 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
             _k = next_idx[0]
             for k in range(self.env.N_HOLE_CARDS):
                 x = []
-                for j in range(self.env.N_RANKS):  # .................................................... rank
-                    x.append(get_discrete(1, str(i) + f"th_player_card_{k}_rank_" + str(j), next_idx))
+                for j in range(
+                        self.env.N_RANKS):  # .................................................... rank
+                    x.append(
+                        get_discrete(1, str(i) + f"th_player_card_{k}_rank_" + str(j),
+                                     next_idx))
 
-                for j in range(self.env.N_SUITS):  # .................................................... suit
-                    x.append(get_discrete(1, str(i) + f"th_player_card_{k}_suit_" + str(j), next_idx))
+                for j in range(
+                        self.env.N_SUITS):  # .................................................... suit
+                    x.append(
+                        get_discrete(1, str(i) + f"th_player_card_{k}_suit_" + str(j),
+                                     next_idx))
 
                 _handcards_space += x
 
@@ -221,10 +250,13 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
             for j in range(self.max_players):
                 for a in [0, 1]:
                     _action_history_space.append(
-                        get_new_box(f"{self._rounds[i]}_player_{j}_action_{a}_how_much", next_idx, self.max_players))
+                        get_new_box(f"{self._rounds[i]}_player_{j}_action_{a}_how_much",
+                                    next_idx, self.max_players))
                     for k in range(3):
                         _action_history_space.append(
-                            get_discrete(1, f"{self._rounds[i]}_player_{j}_action_{a}_what_{k}", next_idx)
+                            get_discrete(1,
+                                         f"{self._rounds[i]}_player_{j}_action_{a}_what_{k}",
+                                         next_idx)
                         )
             obs_parts_idxs_dict["action_history"][i] += list(range(_k, next_idx[0]))
         # preflop, flop, turn, river : [action0, action1], []
@@ -236,14 +268,15 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                           _board_space +
                                           _handcards_space +
                                           _action_history_space +
-                                          [spaces.Discrete(1)]  # for btn_index which we added manually later
+                                          [spaces.Discrete(1)]
+                                          # for btn_index which we added manually later
                                           )
         # obs_idx_dict["btn_idx"] = len(list(obs_idx_dict.keys()))
         obs_idx_dict["Btn_idx_is_0"] = 563
-        obs_idx_dict["Btn_idx_is_1"] = 564 
-        obs_idx_dict["Btn_idx_is_2"] = 565 
-        obs_idx_dict["Btn_idx_is_3"] = 566 
-        obs_idx_dict["Btn_idx_is_4"] = 567 
+        obs_idx_dict["Btn_idx_is_1"] = 564
+        obs_idx_dict["Btn_idx_is_2"] = 565
+        obs_idx_dict["Btn_idx_is_3"] = 566
+        obs_idx_dict["Btn_idx_is_4"] = 567
         obs_idx_dict["Btn_idx_is_5"] = 568
         try:
             _observation_space.shape = [len(_observation_space.spaces)]
@@ -818,7 +851,8 @@ preflop_player_5_action_1_how_much:   0.0
     river_player_5_action_1_what_0:   0.0
     river_player_5_action_1_what_1:   0.0
     river_player_5_action_1_what_2:   0.0"""
-        print("______________________________________ Printing _Observation _________________________________________")
+        print(
+            "______________________________________ Printing _Observation _________________________________________")
         names = [e + ":  " for e in list(self.obs_idx_dict.keys())]
         str_len = max([len(e) for e in names])
         for name, key in zip(names, list(self.obs_idx_dict.keys())):
@@ -1402,12 +1436,38 @@ class AugmentedObservationFeatureColumns(enum.IntEnum):
     Position_is_co = 568
 
 
+features_with_hud_stats = [c.name for c in AugmentedObservationFeatureColumns]
+features_with_hud_stats += ['Win_probability',
+                            'Player_0_is_tight',
+                            'Player_0_is_aggressive',
+                            'Player_0_is_balanced_or_unknown',
+                            'Player_1_is_tight',
+                            'Player_1_is_aggressive',
+                            'Player_1_is_balanced_or_unknown',
+                            'Player_2_is_tight',
+                            'Player_2_is_aggressive',
+                            'Player_2_is_balanced_or_unknown',
+                            'Player_3_is_tight',
+                            'Player_3_is_aggressive',
+                            'Player_3_is_balanced_or_unknown',
+                            'Player_4_is_tight',
+                            'Player_4_is_aggressive',
+                            'Player_4_is_balanced_or_unknown',
+                            'Player_5_is_tight',
+                            'Player_5_is_aggressive',
+                            'Player_5_is_balanced_or_unknown',]
+
+
+FeaturesWithHudStats = IntEnum('FeaturesWithHudStats', features_with_hud_stats)
+
+
 def make_enum__AugmentedObservationFeatureColumns():
     env = init_wrapped_env(AugmentObservationWrapper,
                            [100, 125, 150, 175, 200, 250])
     for k, v in env.obs_idx_dict.items():
         kr = k.capitalize().replace("0th", "First").replace("1th", "Second").replace(
-            "2th", "Third").replace("3th", "Fourth").replace("4th", "Fifth").replace("5th", "Sixth")
+            "2th", "Third").replace("3th", "Fourth").replace("4th", "Fifth").replace(
+            "5th", "Sixth")
         print(f'{kr} = {v}')
 
 
