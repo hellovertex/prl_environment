@@ -1394,12 +1394,12 @@ class AugmentedObservationFeatureColumns(enum.IntEnum):
     River_player_5_action_1_what_0 = 560
     River_player_5_action_1_what_1 = 561
     River_player_5_action_1_what_2 = 562
-    Btn_idx_is_0 = 563
-    Btn_idx_is_1 = 564
-    Btn_idx_is_2 = 565
-    Btn_idx_is_3 = 566
-    Btn_idx_is_4 = 567
-    Btn_idx_is_5 = 568
+    Position_is_btn = 563
+    Position_is_sb = 564
+    Position_is_bb = 565
+    Position_is_utg = 566
+    Position_is_mp = 567
+    Position_is_co = 568
 
 
 def make_enum__AugmentedObservationFeatureColumns():
