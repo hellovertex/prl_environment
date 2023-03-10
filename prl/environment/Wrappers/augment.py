@@ -1458,7 +1458,7 @@ features_with_hud_stats += ['Win_probability',
                             'Player_5_is_balanced_or_unknown',]
 
 
-FeaturesWithHudStats = IntEnum('FeaturesWithHudStats', features_with_hud_stats)
+FeaturesWithHudStats = enum.IntEnum('FeaturesWithHudStats', features_with_hud_stats)
 
 
 def make_enum__AugmentedObservationFeatureColumns():
