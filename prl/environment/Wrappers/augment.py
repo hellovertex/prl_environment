@@ -92,7 +92,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                          done=self.done)
         return obs
 
-    def get_legal_actions(self):
+    def random_agent(self):
         legal_moves = np.array([0, 0, 0, 0, 0, 0, 0, 0])
         legal_moves[self.env.get_legal_actions()] += 1
         if legal_moves[2] == 1:
