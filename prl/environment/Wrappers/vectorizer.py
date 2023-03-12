@@ -384,8 +384,9 @@ class CanonicalVectorizer(Vectorizer):
         # rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
         # if not self._agent_observation_type == AgentObservationType.SEER:
         if not self.done:
-            # ignore all other players cards -> the agent should not see these
-            rolled_cards = rolled_cards[:2]
+            if not self._agent_observation_type == AgentObservationType.SEER:
+                # ignore all other players cards -> the agent should not see these
+                rolled_cards = rolled_cards[:2]
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ 0  0], [ 0  0]]
 
         # initialize hand_bits to 0

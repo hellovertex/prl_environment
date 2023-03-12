@@ -17,7 +17,9 @@ from gym.spaces import Box
 class AugmentObservationWrapper(ActionHistoryWrapper):
     """Runs our custom vectorizer after computing the observation from the steinberger env"""
 
-    def __init__(self, env, disable_info=False):
+    def __init__(self, env,
+                 disable_info=False,
+                 mode: AgentObservationType = AgentObservationType.CARD_KNOWLEDGE):
         super().__init__(env=env)
         self.disable_info = disable_info
         # todo: (?) check how obs is normalized to avoid small floats
@@ -39,7 +41,8 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
-                                               btn_pos=self.env.BTN_POS)
+                                               btn_pos=self.env.BTN_POS,
+                                               mode=mode)
 
     #
     # def seed(self, seed: Optional[int] = None) -> None:
@@ -1455,8 +1458,7 @@ features_with_hud_stats += ['Win_probability',
                             'Player_4_is_balanced_or_unknown',
                             'Player_5_is_tight',
                             'Player_5_is_aggressive',
-                            'Player_5_is_balanced_or_unknown',]
-
+                            'Player_5_is_balanced_or_unknown', ]
 
 FeaturesWithHudStats = enum.IntEnum('FeaturesWithHudStats', features_with_hud_stats)
 
