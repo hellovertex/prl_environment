@@ -102,7 +102,8 @@ class ActionHistoryWrapper(WrapperPokerRL):
         self.player_hands = []
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,
-                                               btn_pos=0)
+                                               btn_pos=0,
+                                               mode=self.agent_observation_mode)
         self.done = False # monkeypatch
         if config is not None and 'deck_state_dict' in config:
             if 'hand' in config['deck_state_dict']:

@@ -41,7 +41,7 @@ class CanonicalVectorizer(Vectorizer):
                  mode=AgentObservationType.CARD_KNOWLEDGE):
         # --- Utils --- #
         # todo [optional] switch to use num_players instead of max_players
-        self._agent_observation_type = mode
+        self._agent_observation_mode = mode
         self._use_zero_padding = use_zero_padding
         self._next_player_who_gets_observation = None
         self.num_players = num_players
@@ -109,11 +109,11 @@ class CanonicalVectorizer(Vectorizer):
 
     @property
     def agent_observation_mode(self):
-        return self._agent_observation_type
+        return self._agent_observation_mode
 
     @agent_observation_mode.setter
     def agent_observation_mode(self, mode: AgentObservationType):
-        self._agent_observation_type = mode
+        self._agent_observation_mode = mode
 
     def vectorized_observation_shape(self):
         return self._obs.shape
@@ -382,9 +382,9 @@ class CanonicalVectorizer(Vectorizer):
         # todo: if not SEER mode, set rolled_cards[2:] indices to zero
         # the following line introduces a bug:  -- keep for reference, do NOT uncomment
         # rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
-        # if not self._agent_observation_type == AgentObservationType.SEER:
+        # if not self._agent_observation_mode == AgentObservationType.SEER:
         if not self.done:
-            if not self._agent_observation_type == AgentObservationType.SEER:
+            if not self._agent_observation_mode == AgentObservationType.SEER:
                 # ignore all other players cards -> the agent should not see these
                 rolled_cards = rolled_cards[:2]
         # rolled_cards = [[ 5  3], [ 5  0], [12  0], [ 9  1], [ 0  0], [ 0  0]]

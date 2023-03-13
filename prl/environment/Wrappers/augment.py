@@ -19,9 +19,10 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
 
     def __init__(self, env,
                  disable_info=False,
-                 agent_observation_mode: AgentObservationType = AgentObservationType.CARD_KNOWLEDGE):
+                 agent_observation_mode=AgentObservationType.CARD_KNOWLEDGE):
         super().__init__(env=env)
         self.disable_info = disable_info
+        self.agent_observation_mode = agent_observation_mode
         # todo: (?) check how obs is normalized to avoid small floats
         self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
@@ -42,7 +43,8 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS,
-                                               mode=agent_observation_mode)
+                                               mode=self.agent_observation_mode)
+        a = 1
 
     #
     # def seed(self, seed: Optional[int] = None) -> None:
@@ -53,7 +55,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
             self.num_players = n_players
         self.env.set_args(args)
         if not agent_observation_mode:
-            agent_observation_mode = self.agent_observation_mode()
+            agent_observation_mode = self.agent_observation_mode
         self.normalization = float(
             sum([s.starting_stack_this_episode for s in self.env.seats])
         ) / self.env.N_SEATS
@@ -62,7 +64,8 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self._vectorizer = CanonicalVectorizer(num_players=self.num_players,
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
-                                               btn_pos=self.env.BTN_POS)
+                                               btn_pos=self.env.BTN_POS,
+                                               mode=agent_observation_mode)
         self._vectorizer.agent_observation_mode = agent_observation_mode
 
     def get_legal_moves_extended(self):
@@ -1460,6 +1463,7 @@ features_with_hud_stats += ['Win_probability',
                             'Player_5_is_aggressive',
                             'Player_5_is_balanced_or_unknown', ]
 
+
 # FeaturesWithHudStats = enum.IntEnum('FeaturesWithHudStats', features_with_hud_stats)
 class FeaturesWithHudStats(enum.IntEnum):
     Ante = 0
@@ -2050,6 +2054,7 @@ class FeaturesWithHudStats(enum.IntEnum):
     Player_5_is_tight = 585
     Player_5_is_aggressive = 586
     Player_5_is_balanced_or_unknown = 587
+
 
 def make_enum__AugmentedObservationFeatureColumns():
     env = init_wrapped_env(AugmentObservationWrapper,
