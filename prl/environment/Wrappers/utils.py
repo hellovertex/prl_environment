@@ -2,12 +2,13 @@ from typing import TypeVar, Tuple, Type, List, Union
 
 from prl.environment.Wrappers.base import EnvWrapperBase
 from prl.environment.steinberger.PokerRL import NoLimitHoldem
-
+from prl.environment.Wrappers.vectorizer import AgentObservationType
 ENV_WRAPPER = TypeVar('ENV_WRAPPER', bound=EnvWrapperBase)
 
 
 def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
                      stack_sizes: List[float],
+                     agent_observation_mode: AgentObservationType,
                      blinds: Tuple[int, int]=(25,50),  #  = [25, 50]
                      multiply_by=100,
                      scale_rewards=True,
@@ -40,6 +41,8 @@ def init_wrapped_env(env_wrapper_cls: Type[EnvWrapperBase],
                         lut_holder=NoLimitHoldem.get_lut_holder())
     env.SMALL_BLIND = blinds[0]
     env.BIG_BLIND = blinds[1]
-    wrapped_env = env_wrapper_cls(env, disable_info=disable_info)
+    wrapped_env = env_wrapper_cls(env,
+                                  disable_info=disable_info,
+                                  agent_observation_mode=agent_observation_mode)
     return wrapped_env  # todo urgent replace:, starting_stack_sizes_list
 

@@ -19,7 +19,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
 
     def __init__(self, env,
                  disable_info=False,
-                 mode: AgentObservationType = AgentObservationType.CARD_KNOWLEDGE):
+                 agent_observation_mode: AgentObservationType = AgentObservationType.CARD_KNOWLEDGE):
         super().__init__(env=env)
         self.disable_info = disable_info
         # todo: (?) check how obs is normalized to avoid small floats
@@ -42,7 +42,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
                                                obs_idx_dict=self.env.obs_idx_dict,
                                                # btn pos used to return obs relative to self
                                                btn_pos=self.env.BTN_POS,
-                                               mode=mode)
+                                               mode=agent_observation_mode)
 
     #
     # def seed(self, seed: Optional[int] = None) -> None:
