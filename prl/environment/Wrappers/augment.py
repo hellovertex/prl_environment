@@ -82,14 +82,16 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
         self._vectorizer.agent_observation_mode = mode
 
     # @override
-    def get_current_obs(self, env_obs):
+    def get_current_obs(self, env_obs, backward_offset=0):
         """
         Args:
             env_obs: the observation returned by the base PokerEnv.
             The len(env_obs) is a function of the number of players.
         """
+        observer_relative_index = (self._next_player_who_gets_observation -
+                                          backward_offset) % self.num_players
         obs = self._vectorizer.vectorize(env_obs,
-                                         self._next_player_who_gets_observation,
+                                         observer_relative_index,
                                          action_history=self._actions_per_stage,
                                          player_hands=self._player_hands,
                                          # player_hands=[self.env.get_hole_cards_of_player(i)
