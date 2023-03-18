@@ -383,6 +383,9 @@ class CanonicalVectorizer(Vectorizer):
         # the following line introduces a bug:  -- keep for reference, do NOT uncomment
         # rolled_cards[np.where(rolled_cards == Poker.CARD_NOT_DEALT_TOKEN_1D)] = 0
         # if not self._agent_observation_mode == AgentObservationType.SEER:
+        # at the end, players get to see all cards even the folded ones, because we dont do opponent modelling it does
+        # not matter but only helps understanding who won. can easily be switched of with an additional flag
+        # and masking the non-remaining players cards
         if not self.done:
             if not self._agent_observation_mode == AgentObservationType.SEER:
                 # ignore all other players cards -> the agent should not see these
