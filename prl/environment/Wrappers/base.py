@@ -16,6 +16,7 @@ class ActionSpace(enum.IntEnum):
     # RAISE_HALF_POT = 3
     # RAISE_POT = 4
     # ALL_IN = 5
+    NoOp = 8
 
 
 class ActionSpaceMinimal(enum.IntEnum):

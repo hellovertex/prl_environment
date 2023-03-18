@@ -70,6 +70,7 @@ class AugmentObservationWrapper(ActionHistoryWrapper):
 
     def get_legal_moves_extended(self):
         legal_moves = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        # if done
         legal_moves[self.env.get_legal_actions()] += 1
         if legal_moves[2] == 1:
             legal_moves[[3, 4, 5, 6, 7]] = 1
