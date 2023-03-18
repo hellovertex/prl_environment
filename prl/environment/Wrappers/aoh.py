@@ -125,7 +125,9 @@ class ActionHistoryWrapper(WrapperPokerRL):
 
     def discretize(self, action_formatted):
         try:
-            if isinstance(action_formatted, int) or isinstance(action_formatted, np.integer):
+            if isinstance(action_formatted, int) or \
+                    isinstance(action_formatted, np.integer) or \
+                    isinstance(action_formatted, ActionSpace):
                 return ActionSpace(action_formatted)
             if action_formatted[0] == 2:  # action is raise
                 pot_size = self.env.get_all_winnable_money()
