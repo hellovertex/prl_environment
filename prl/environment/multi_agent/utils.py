@@ -22,6 +22,7 @@ def make_multi_agent_env(env_config) -> Type[MultiAgentEnv]:
             # to set up ray remote workers
             self._n_players = env_config['n_players']
             self._starting_stack_size = env_config['starting_stack_size']
+            self._agent_observation_mode = env_config['agent_observation_mode']
             self._blinds = env_config['blinds']
             self._env_cls = env_config['env_wrapper_cls']
             self.env_wrapped = self._single_env()
@@ -32,13 +33,13 @@ def make_multi_agent_env(env_config) -> Type[MultiAgentEnv]:
             #     0].observation_space  # not batched, rllib wants that to be for single env
             # self.observation_space.dtype = np.float32
             # todo fix following monkeypatch:
-            obs_space = Box(low=0.0, high=6.0, shape=(564,), dtype=np.float64)
+            obs_space = Box(low=0.0, high=6.0, shape=(569,), dtype=np.float64)
             self.observation_space = obs_space
             if 'mask_legal_moves' in env_config:
                 if env_config['mask_legal_moves']:
                     self.observation_space = gym.spaces.Dict({
                         'obs': obs_space,  # do not change key-name 'obs' it is internally used by rllib (!)
-                        'legal_moves': Box(low=0, high=1, shape=(3,), dtype=int) # one-hot encoded [FOLD, CHECK_CALL, RAISE]
+                        'legal_moves': Box(low=0, high=1, shape=(8,), dtype=int) # one-hot encoded [FOLD, CHECK_CALL, RAISE]
                     })
 
             self._agent_ids = list(self.agents.keys())
@@ -47,16 +48,18 @@ def make_multi_agent_env(env_config) -> Type[MultiAgentEnv]:
 
         def _single_env(self):
             return init_wrapped_env(self._env_cls,
+                                    multiply_by=1,
+                                    scale_rewards=False,
                                     stack_sizes=[self._starting_stack_size for _ in range(self._n_players)],
-                                    blinds=self._blinds)
+                                    blinds=self._blinds,
+                                    agent_observation_mode=self._agent_observation_mode)
 
         @override(MultiAgentEnv)
         def reset(self):
             # return only obs, nothing else
             obs, _, _, info = self.env_wrapped.reset(config=None)
             next_to_act = self.env_wrapped.env.current_player.seat_id
-            legal_moves = np.array([0, 0, 0])
-            legal_moves[self.env_wrapped.env.get_legal_actions()] += 1
+            legal_moves = self.env_wrapped.get_legal_moves_extended()
             return {next_to_act: {'obs': obs, 'legal_moves': legal_moves}}
 
         @override(MultiAgentEnv)
@@ -112,8 +115,7 @@ def make_multi_agent_env(env_config) -> Type[MultiAgentEnv]:
             assert len(have_played) == 1
             action = action_dict[has_played]
             obs, rews, done, info = self.env_wrapped.step(action)
-            legal_moves = np.array([0, 0, 0])
-            legal_moves[self.env_wrapped.env.get_legal_actions()] += 1
+            legal_moves = self.env_wrapped.get_legal_moves_extended()
             # assign returned observation to new player,
             # dones to old player and reward for all players
             next = self.env_wrapped.env.current_player.seat_id
