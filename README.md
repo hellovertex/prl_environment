@@ -596,4 +596,9 @@ The dimensions are as returned from the
         river_player_5_action_1_what_0:   0.0
         river_player_5_action_1_what_1:   0.0
         river_player_5_action_1_what_2:   0.0
-                          button_index:  3.0
+                       Position_is_btn:   1.0
+                        Position_is_sb:   0.0
+                        Position_is_bb:   0.0
+                       Position_is_utg:   0.0
+                        Position_is_mp:   0.0
+                        Position_is_co:   0.0
